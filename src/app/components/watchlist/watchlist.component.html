@@ -1,15 +1,109 @@
 <section class="watchlist">
   <header class="section-heading">
-    <h2>Watchlist <span>({{ stocks.length }})</span></h2>
+    <h2>Watchlist <span>({{ filteredStocks.length }})</span></h2>
     <div class="actions">
-      <button aria-label="Add stock">+</button>
-      <button aria-label="Filter watchlist">
+      <button type="button" aria-label="Add Excel file to watchlist" title="Upload XLSX" (click)="openFilePicker(xlsxInput)">+</button>
+      <button type="button" aria-label="Filter watchlist" [class.active]="hasActiveFilters" [attr.aria-expanded]="isFilterOpen" (click)="toggleFilter()">
         <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 3h16l-6.2 7.1v5.1l-3.6 1.8v-6.9z" /></svg>
       </button>
     </div>
   </header>
+  <label class="watchlist-search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 5 5" /></svg>
+    <input
+      type="search"
+      placeholder="Search watchlist"
+      aria-label="Search watchlist by company or NSE symbol"
+      [value]="searchQuery"
+      (input)="updateSearchQuery($event)"
+    />
+  </label>
+  @if (isFilterOpen) {
+    <div class="filter-backdrop" (click)="isFilterOpen = false">
+      <section class="filter-popup" role="dialog" aria-modal="true" aria-labelledby="filter-title" (click)="$event.stopPropagation()">
+        <header class="filter-heading">
+          <h3 id="filter-title">Filter Watchlist</h3>
+          <button type="button" aria-label="Close filters" (click)="isFilterOpen = false">×</button>
+        </header>
+
+        <div class="filter-group">
+          <div class="filter-label">
+            <strong>Price band</strong>
+            <span>₹{{ minPrice.toLocaleString('en-IN') }} – ₹{{ maxPrice.toLocaleString('en-IN') }}</span>
+          </div>
+          <div class="range-control" [style.--range-left.%]="priceRangeLeft" [style.--range-width.%]="priceRangeWidth">
+            <div class="range-track"><span></span></div>
+            <button
+              type="button"
+              class="range-thumb"
+              role="slider"
+              aria-label="Minimum stock price"
+              aria-valuemin="0"
+              [attr.aria-valuemax]="maxPrice"
+              [attr.aria-valuenow]="minPrice"
+              [style.left.%]="priceRangeLeft"
+              (pointerdown)="startPriceDrag('min', $event)"
+              (pointermove)="movePriceDrag($event)"
+              (pointerup)="endPriceDrag($event)"
+              (pointercancel)="endPriceDrag($event)"
+              (keydown)="onPriceHandleKeydown('min', $event)"
+            ></button>
+            <button
+              type="button"
+              class="range-thumb"
+              role="slider"
+              aria-label="Maximum stock price"
+              [attr.aria-valuemin]="minPrice"
+              aria-valuemax="15000"
+              [attr.aria-valuenow]="maxPrice"
+              [style.left.%]="priceRangeLeft + priceRangeWidth"
+              (pointerdown)="startPriceDrag('max', $event)"
+              (pointermove)="movePriceDrag($event)"
+              (pointerup)="endPriceDrag($event)"
+              (pointercancel)="endPriceDrag($event)"
+              (keydown)="onPriceHandleKeydown('max', $event)"
+            ></button>
+          </div>
+          <div class="range-limits"><span>₹0</span><span>₹15,000</span></div>
+        </div>
+
+        <div class="filter-group percent-group">
+          <strong class="group-title">% increased</strong>
+          <div class="percent-fields">
+            <label>
+              <span>≥ %</span>
+              <input type="number" min="0" step="0.1" placeholder="Min" [value]="minChange" (input)="updateMinChange($event)" />
+            </label>
+            <label>
+              <span>≤ %</span>
+              <input type="number" min="0" step="0.1" placeholder="Max" [value]="maxChange" (input)="updateMaxChange($event)" />
+            </label>
+          </div>
+          <p>Leave either field blank to use only the other limit.</p>
+        </div>
+
+        <footer class="filter-actions">
+          <button type="button" class="clear-button" (click)="clearFilters()">Clear</button>
+          <button type="button" class="apply-button" (click)="applyFilters()">Apply filters</button>
+        </footer>
+      </section>
+    </div>
+  }
+  <input
+    #xlsxInput
+    class="file-input"
+    type="file"
+    accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    aria-label="Choose an XLSX file"
+    (change)="onFileSelected($event)"
+  />
+  @if (selectedFileName || fileError) {
+    <p class="file-message" [class.error]="fileError" [attr.role]="fileError ? 'alert' : 'status'">
+      {{ fileError || 'Selected: ' + selectedFileName }}
+    </p>
+  }
   <div class="stocks">
-    @for (stock of stocks; track stock.symbol) {
+    @for (stock of filteredStocks; track stock.symbol) {
       <article class="stock-row">
         <div class="stock-info">
           <strong>{{ stock.name }}</strong>

@@ -1,7 +1,10 @@
 # Stock Analyzer
 
 An Angular dashboard mockup for stock screening and trade setup review. It uses
-sample data only; it is not connected to a live market data provider.
+sample data only; it is not connected to a live market data provider. The
+watchlist company names and NSE symbols are taken from the Large Cap category
+in `src/assets/AverageMarketCapitalization30Jun2026.xlsx`; displayed prices and
+daily changes are generated mock values.
 
 ## Run locally
 

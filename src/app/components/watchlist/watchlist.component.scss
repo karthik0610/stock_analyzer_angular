@@ -34,6 +34,48 @@ h2 span {
   gap: 13px;
 }
 
+.actions button.active {
+  color: #43d99a;
+}
+
+.watchlist-search {
+  display: flex;
+  height: 34px;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 10px;
+  padding: 0 9px;
+  border: 1px solid #293a57;
+  border-radius: 6px;
+  background: #0a1427;
+}
+
+.watchlist-search:focus-within {
+  border-color: #3478ce;
+}
+
+.watchlist-search svg {
+  width: 15px;
+  flex: 0 0 15px;
+  fill: none;
+  stroke: #aab9cf;
+  stroke-width: 1.8;
+}
+
+.watchlist-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #e6edf9;
+  font-size: 11px;
+}
+
+.watchlist-search input::placeholder {
+  color: #8292aa;
+}
+
 button {
   display: grid;
   width: 22px;
@@ -54,6 +96,211 @@ button svg {
   stroke: currentColor;
   stroke-width: 1.8;
   stroke-linejoin: round;
+}
+
+.file-input {
+  display: none;
+}
+
+.file-message {
+  margin: 0;
+  padding: 6px 12px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid #192943;
+  color: #59e4a5;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.file-message.error {
+  color: #ff828c;
+}
+
+.filter-backdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  background: #0206116b;
+}
+
+.filter-popup {
+  position: absolute;
+  top: 70px;
+  left: 12px;
+  width: min(292px, calc(100vw - 24px));
+  max-height: calc(100dvh - 82px);
+  padding: 14px;
+  overflow-y: auto;
+  border: 1px solid #2a3d5d;
+  border-radius: 10px;
+  background: #0a1427;
+  box-shadow: 0 16px 40px #000b;
+}
+
+.filter-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #21324e;
+}
+
+.filter-heading h3 {
+  margin: 0;
+  color: #e8eef9;
+  font-size: 14px;
+}
+
+.filter-heading button {
+  width: 25px;
+  height: 25px;
+  border-radius: 5px;
+  color: #aebbd0;
+  font-size: 20px;
+}
+
+.filter-group {
+  padding: 13px 0;
+  border-bottom: 1px solid #21324e;
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #e4ebf6;
+  font-size: 11px;
+}
+
+.filter-label span,
+.range-limits {
+  color: #aab9cf;
+  font-size: 10px;
+}
+
+.range-control {
+  position: relative;
+  height: 25px;
+  margin: 9px 5px 0;
+}
+
+.range-track {
+  position: absolute;
+  top: 10px;
+  right: 0;
+  left: 0;
+  height: 4px;
+  border-radius: 4px;
+  background: #293a57;
+}
+
+.range-track span {
+  position: absolute;
+  top: 0;
+  left: var(--range-left);
+  width: var(--range-width);
+  height: 100%;
+  border-radius: inherit;
+  background: #1683ff;
+}
+
+.range-thumb {
+  position: absolute;
+  z-index: 1;
+  top: 4px;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 2px solid #d6e8ff;
+  border-radius: 50%;
+  background: #1683ff;
+  box-shadow: 0 0 0 2px #0a1427;
+  transform: translateX(-50%);
+  cursor: grab;
+  touch-action: none;
+}
+
+.range-thumb:active {
+  background: #62b5ff;
+  cursor: grabbing;
+}
+
+.range-limits {
+  display: flex;
+  justify-content: space-between;
+}
+
+.group-title {
+  color: #e4ebf6;
+  font-size: 11px;
+}
+
+.percent-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 9px;
+}
+
+.percent-fields label {
+  display: grid;
+  gap: 5px;
+  color: #aab9cf;
+  font-size: 10px;
+}
+
+.percent-fields input {
+  width: 100%;
+  height: 34px;
+  padding: 0 9px;
+  border: 1px solid #304463;
+  border-radius: 6px;
+  outline: none;
+  background: #070f20;
+  color: #e6edf9;
+  font-size: 12px;
+}
+
+.percent-fields input:focus {
+  border-color: #2782ff;
+}
+
+.percent-fields input::placeholder {
+  color: #72829b;
+}
+
+.percent-group p {
+  margin: 7px 0 0;
+  color: #8191a9;
+  font-size: 10px;
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 12px;
+}
+
+.filter-actions button {
+  width: auto;
+  height: 32px;
+  padding: 0 11px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+.filter-actions .clear-button {
+  border: 1px solid #30415d;
+  background: #101b30;
+  color: #c7d2e3;
+}
+
+.filter-actions .apply-button {
+  background: #1768eb;
+  color: #fff;
+  font-weight: 700;
 }
 
 .stock-row {
