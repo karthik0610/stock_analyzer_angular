@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { largeCapStocks } from './large-cap-stocks';
+import { StockDataService } from '../../services/stock-data.service';
 
 type PriceRangeHandle = 'min' | 'max';
 
@@ -24,28 +24,12 @@ export class WatchlistComponent {
   private appliedMinChange: number | null = null;
   private appliedMaxChange: number | null = null;
 
-  readonly stocks = largeCapStocks.map((stock, index) => {
-    const positive = index % 3 !== 1;
-    const price = 250 + ((index * 137.45) % 9_950);
-    const change = 0.45 + ((index * 17) % 475) / 100;
+  constructor(private readonly stockData: StockDataService) {}
 
-    return {
-      ...stock,
-      priceValue: price,
-      changeValue: positive ? change : -change,
-      price: price.toLocaleString('en-IN', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }),
-      change: `${positive ? '+' : '-'}${change.toFixed(2)}%`,
-      positive,
-    };
-  });
-
-  get filteredStocks(): typeof this.stocks {
+  get filteredStocks() {
     const query = this.searchQuery.trim().toLocaleLowerCase();
 
-    return this.stocks.filter((stock) => {
+    return this.stockData.stocks().filter((stock) => {
       const matchesSearch =
         query === '' ||
         stock.name.toLocaleLowerCase().includes(query) ||
@@ -69,7 +53,12 @@ export class WatchlistComponent {
         meetsMinimum &&
         meetsMaximum
       );
-    });
+    }).map((stock) => ({
+      ...stock,
+      price: this.formatPrice(stock.priceValue),
+      change: `${stock.changeValue >= 0 ? '+' : ''}${stock.changeValue.toFixed(2)}%`,
+      positive: stock.changeValue >= 0,
+    }));
   }
 
   updateSearchQuery(event: Event): void {
@@ -225,5 +214,12 @@ export class WatchlistComponent {
     }
 
     this.maxPrice = Math.max(Math.min(value, 15_000), this.minPrice);
+  }
+
+  private formatPrice(price: number): string {
+    return price.toLocaleString('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   }
 }

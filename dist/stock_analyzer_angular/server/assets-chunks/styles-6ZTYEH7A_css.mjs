@@ -1,2 +1,0 @@
-export default `*{box-sizing:border-box}html,body{width:100%;min-width:360px;min-height:100%;margin:0;background:#030918;color:#e7edf9;font-family:Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;-webkit-font-smoothing:antialiased}button,input{font:inherit}
-`;
