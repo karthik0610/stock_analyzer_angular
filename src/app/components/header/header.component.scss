@@ -1,0 +1,200 @@
+:host {
+  display: block;
+  flex: 0 0 61px;
+}
+
+.topbar {
+  display: flex;
+  height: 61px;
+  align-items: center;
+  gap: 18px;
+  padding: 0 16px 0 19px;
+  background: #050c1b;
+  border-bottom: 1px solid #1c2a43;
+}
+
+.brand {
+  display: flex;
+  flex: 0 0 238px;
+  height: 100%;
+  align-items: center;
+  gap: 13px;
+  border-right: 1px solid #1a2841;
+  color: #f3f6fd;
+  font-size: 20px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.brand svg {
+  width: 34px;
+  fill: none;
+  stroke: #00e383;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.4;
+}
+
+.search {
+  display: flex;
+  flex: 1 1 230px;
+  min-width: 110px;
+  max-width: 470px;
+  height: 39px;
+  align-items: center;
+  gap: 11px;
+  padding: 0 13px;
+  border: 1px solid #344a70;
+  border-radius: 9px;
+  background: #0c172d;
+}
+
+.search svg {
+  width: 19px;
+  flex: 0 0 19px;
+  fill: none;
+  stroke: #d3def1;
+  stroke-width: 1.8;
+}
+
+.search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #e8effc;
+  font: inherit;
+  font-size: 13px;
+}
+
+.search input::placeholder {
+  color: #bdc9dc;
+  opacity: 1;
+}
+
+.metric {
+  display: flex;
+  flex: 0 1 174px;
+  height: 48px;
+  align-items: center;
+  gap: 11px;
+  padding: 0 12px;
+  border: 1px solid #1e2d48;
+  border-radius: 10px;
+  background: #080f1f;
+  white-space: nowrap;
+}
+
+.metric-icon,
+.trend-icon {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid #253754;
+  border-radius: 50%;
+  color: #e1e9f8;
+}
+
+.metric-icon svg {
+  width: 23px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.trend-icon svg {
+  width: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.metric span:last-child {
+  display: grid;
+  gap: 2px;
+}
+
+.metric small {
+  color: #bdc8da;
+  font-size: 11px;
+}
+
+.metric strong {
+  color: #f2f5fc;
+  font-size: 14px;
+}
+
+.profit {
+  flex-basis: 210px;
+  border-color: #007b43;
+  background: linear-gradient(110deg, #041b17, #071522);
+}
+
+.profit .trend-icon,
+.profit strong {
+  color: #04e887;
+}
+
+.profit .trend-icon {
+  border: 0;
+}
+
+.icon-button,
+.avatar {
+  position: relative;
+  display: grid;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #dce5f5;
+  font-size: 23px;
+}
+
+.icon-button svg,
+.avatar svg {
+  width: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.notification i {
+  position: absolute;
+  top: 4px;
+  right: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f54b61;
+}
+
+.avatar {
+  background: #20345b;
+}
+
+@media (max-width: 1050px) {
+  .topbar {
+    gap: 9px;
+    padding-inline: 10px;
+  }
+
+  .brand {
+    flex-basis: 188px;
+    font-size: 17px;
+  }
+
+  .profit {
+    display: none;
+  }
+}

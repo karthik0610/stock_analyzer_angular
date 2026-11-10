@@ -1,0 +1,31 @@
+<section class="movers">
+  <div class="mover-list bullish">
+    <header class="mover-heading">
+      <h2><span class="arrow">⌁</span> Top 15 Bullish Stocks <span class="info">i</span></h2>
+      <span class="tag green">Bullish</span>
+    </header>
+    <div class="table-head"><span>#</span><span>Stock (BSE)</span><span>Price</span><span>Change %</span></div>
+    <ol>
+      @for (stock of bullishStocks; track stock.symbol; let index = $index) {
+        <li>
+          <span>{{ index + 1 }}</span><strong>{{ stock.symbol }}</strong><span>{{ stock.price }}</span><em>{{ stock.change }}</em>
+        </li>
+      }
+    </ol>
+  </div>
+
+  <div class="mover-list bearish">
+    <header class="mover-heading">
+      <h2><span class="arrow">↘</span> Top 15 Bearish Stocks <span class="info">i</span></h2>
+      <span class="tag red">Bearish</span>
+    </header>
+    <div class="table-head"><span>#</span><span>Stock (BSE)</span><span>Price</span><span>Change %</span></div>
+    <ol>
+      @for (stock of bearishStocks; track stock.symbol; let index = $index) {
+        <li>
+          <span>{{ index + 1 }}</span><strong>{{ stock.symbol }}</strong><span>{{ stock.price }}</span><em>{{ stock.change }}</em>
+        </li>
+      }
+    </ol>
+  </div>
+</section>

@@ -1,0 +1,47 @@
+<section class="finalized">
+  <header class="finalized-heading">
+    <h2><span class="layers">▱</span> Finalized Stocks <span class="count">({{ stocks.length }})</span></h2>
+    <button>Sort: Score <span>⌄</span></button>
+  </header>
+
+  <div class="cards">
+    @for (stock of stocks; track stock.symbol) {
+      <article class="stock-card">
+        <div class="card-title">
+          <div class="name">
+            <strong>{{ stock.name }}</strong>
+            <span>({{ stock.symbol }})</span>
+          </div>
+          <span class="buy">Buy</span>
+          <button class="favorite" [attr.aria-label]="'Favorite ' + stock.name">☆</button>
+        </div>
+        <div class="price-line">
+          <strong>{{ stock.price }}</strong>
+          <span class="gain">▲ {{ stock.change }}</span>
+          <span class="score">Score {{ stock.score }}</span>
+        </div>
+
+        <div class="metrics">
+          <div><span>Support</span><strong class="blue">{{ stock.support }}</strong></div>
+          <div><span>Resistance</span><strong class="red">{{ stock.resistance }}</strong></div>
+          <div><span>Entry</span><strong>{{ stock.entry }}</strong></div>
+          <div><span>Stop Loss</span><strong class="red">{{ stock.stopLoss }}</strong></div>
+          <div><span>Target 1</span><strong>{{ stock.target1 }}</strong></div>
+          <div><span>Target 2</span><strong>{{ stock.target2 }}</strong></div>
+          <div><span>R:R</span><strong>{{ stock.rewardRisk }}</strong></div>
+          <div><span>Trend</span><strong class="green">Bullish</strong></div>
+          <div><span>RSI</span><strong>{{ stock.rsi }}</strong></div>
+          <div><span>MACD</span><strong class="green">Bullish</strong></div>
+          <div><span>200 SMA</span><strong>{{ stock.movingAverage }}</strong></div>
+          <div><span>Volume</span><strong class="green">{{ stock.volume }}</strong></div>
+        </div>
+
+        <div class="signals">
+          @for (tag of stock.tags; track tag) {
+            <span>{{ tag }}</span>
+          }
+        </div>
+      </article>
+    }
+  </div>
+</section>

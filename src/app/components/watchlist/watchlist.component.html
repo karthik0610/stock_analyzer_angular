@@ -1,0 +1,25 @@
+<section class="watchlist">
+  <header class="section-heading">
+    <h2>Watchlist <span>({{ stocks.length }})</span></h2>
+    <div class="actions">
+      <button aria-label="Add stock">+</button>
+      <button aria-label="Filter watchlist">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 3h16l-6.2 7.1v5.1l-3.6 1.8v-6.9z" /></svg>
+      </button>
+    </div>
+  </header>
+  <div class="stocks">
+    @for (stock of stocks; track stock.symbol) {
+      <article class="stock-row">
+        <div class="stock-info">
+          <strong>{{ stock.name }}</strong>
+          <span>{{ stock.symbol }}</span>
+        </div>
+        <div class="quote">
+          <strong>{{ stock.price }}</strong>
+          <span class="change" [class.down]="!stock.positive">{{ stock.change }}</span>
+        </div>
+      </article>
+    }
+  </div>
+</section>
