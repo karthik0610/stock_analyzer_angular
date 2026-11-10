@@ -1,0 +1,11 @@
+On hovering over a finalized stock card:
+Show a compact chart preview.
+Display the latest 5-minute candles.
+Show OB and FVG zones.
+Show entry, SL and target lines.
+Display the current price.
+On clicking a stock card:
+Open a detailed interactive chart.
+Allow switching between 1m, 5m and 15m.
+Zoom, pan and inspect historical candles.
+Show or hide individual technical markings.
