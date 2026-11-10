@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
+import { StockChartComponent } from './stock-chart.component';
 
-interface FinalizedStock {
+export interface FinalizedStock {
   name: string;
   symbol: string;
   price: string;
@@ -22,10 +23,15 @@ interface FinalizedStock {
 @Component({
   selector: 'app-finalized-stocks',
   standalone: true,
+  imports: [StockChartComponent],
   templateUrl: './finalized-stocks.component.html',
   styleUrl: './finalized-stocks.component.scss',
 })
 export class FinalizedStocksComponent {
+  selectedStock: FinalizedStock | null = null;
+  previewStock: FinalizedStock | null = null;
+  previewPosition = { left: '0px', top: '0px' };
+
   readonly stocks: FinalizedStock[] = [
     {
       name: 'Reliance Industries Ltd', symbol: 'RELIANCE', price: '₹1,308.00', change: '+1.30% (+16.80)', score: 92,
@@ -52,4 +58,61 @@ export class FinalizedStocksComponent {
       movingAverage: '₹1,608.00', volume: '1.5× Avg', tags: ['BOS ✓', 'FVG ✓', 'Above 200 SMA ✓'],
     },
   ];
+
+  openChart(stock: FinalizedStock): void {
+    this.previewStock = null;
+    this.selectedStock = stock;
+  }
+
+  showPreview(event: PointerEvent | FocusEvent, stock: FinalizedStock): void {
+    if ('pointerType' in event && event.pointerType === 'touch') {
+      return;
+    }
+
+    const card = event.currentTarget as HTMLElement;
+    const bounds = card.getBoundingClientRect();
+    const width = Math.min(560, window.innerWidth - 32);
+    const height = 330;
+    const openRight = bounds.right + width <= window.innerWidth - 16;
+    const maxLeft = Math.max(16, window.innerWidth - width - 16);
+    const left = openRight
+      ? bounds.right - 2
+      : Math.min(Math.max(16, bounds.right - width + 2), maxLeft);
+    const top = Math.min(
+      Math.max(bounds.top, 16),
+      Math.max(16, window.innerHeight - height - 16),
+    );
+
+    this.previewPosition = { left: `${left}px`, top: `${top}px` };
+    this.previewStock = stock;
+  }
+
+  onCardPointerLeave(event: PointerEvent | FocusEvent): void {
+    const nextTarget = event.relatedTarget;
+    if (nextTarget instanceof Element && nextTarget.closest('.chart-preview')) {
+      return;
+    }
+
+    this.previewStock = null;
+  }
+
+  onPreviewPointerLeave(event: PointerEvent): void {
+    const nextTarget = event.relatedTarget;
+    if (nextTarget instanceof Element && nextTarget.closest('.stock-card')) {
+      return;
+    }
+
+    this.previewStock = null;
+  }
+
+  closeChart(): void {
+    this.selectedStock = null;
+  }
+
+  onCardKeydown(event: KeyboardEvent, stock: FinalizedStock): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.openChart(stock);
+    }
+  }
 }

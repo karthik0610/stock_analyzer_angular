@@ -67,12 +67,117 @@ h2 {
 }
 
 .stock-card {
+  position: relative;
   padding: 9px 10px 8px;
   border: 1px solid #2a3c59;
   border-left: 3px solid #00df83;
   border-radius: 10px;
   background: linear-gradient(145deg, #0b1425, #07101f);
   box-shadow: 0 6px 16px #0000001f;
+  cursor: pointer;
+}
+
+.stock-card:focus-visible {
+  outline: 2px solid #378bff;
+  outline-offset: 2px;
+}
+
+.stock-card:hover {
+  z-index: 3;
+  border-color: #3a5578;
+}
+
+.chart-preview {
+  position: fixed;
+  z-index: 4;
+  width: min(560px, calc(100vw - 32px));
+  height: 330px;
+  padding: 11px;
+  border: 1px solid #456183;
+  border-radius: 11px;
+  background: #070f1e;
+  pointer-events: none;
+}
+
+.chart-preview header {
+  display: flex;
+  justify-content: space-between;
+  color: #e8eef9;
+  font-size: 11px;
+}
+
+.chart-backdrop {
+  position: fixed;
+  z-index: 50;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #020611d9;
+  backdrop-filter: blur(5px);
+}
+
+.chart-dialog {
+  display: flex;
+  width: min(1120px, 96vw);
+  max-height: 92dvh;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  overflow: auto;
+  border: 1px solid #2a3e5e;
+  border-radius: 12px;
+  background: #060e1d;
+  box-shadow: 0 24px 70px #000c;
+}
+
+.dialog-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dialog-heading h3 {
+  margin: 0;
+  color: #eef3fb;
+  font-size: 17px;
+}
+
+.dialog-heading h3 span {
+  color: #9fafc6;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.dialog-heading p {
+  margin: 5px 0 0;
+  color: #9aaac1;
+  font-size: 11px;
+}
+
+.dialog-heading button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  place-items: center;
+  border: 1px solid #293b58;
+  border-radius: 6px;
+  background: #101a2d;
+  color: #d3deef;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.chart-dialog app-stock-chart {
+  display: flex;
+  min-height: 460px;
+  flex: 1;
+}
+
+.chart-dialog app-stock-chart .chart-shell {
+  width: 100%;
 }
 
 .card-title {

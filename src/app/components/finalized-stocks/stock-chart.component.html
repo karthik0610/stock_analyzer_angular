@@ -1,0 +1,106 @@
+<section class="chart-shell" [class.compact]="compact()" [attr.aria-label]="stock().symbol + ' candlestick chart'">
+  @if (!compact()) {
+    <header class="chart-toolbar">
+      <div class="timeframes" aria-label="Chart timeframe">
+        @for (period of ['1m', '5m', '15m']; track period) {
+          <button type="button" [class.active]="timeframe() === period" (click)="setTimeframe($any(period))">{{ period }}</button>
+        }
+      </div>
+      <div class="markings" aria-label="Technical markings">
+        <button type="button" [class.enabled]="obVisible()" [attr.aria-pressed]="obVisible()" (click)="toggleMarking('ob')">OB</button>
+        <button type="button" [class.enabled]="fvgVisible()" [attr.aria-pressed]="fvgVisible()" (click)="toggleMarking('fvg')">FVG</button>
+        <button type="button" [class.enabled]="entryVisible()" [attr.aria-pressed]="entryVisible()" (click)="toggleMarking('entry')">Entry</button>
+        <button type="button" [class.enabled]="stopVisible()" [attr.aria-pressed]="stopVisible()" (click)="toggleMarking('stopLoss')">SL</button>
+        <button type="button" [class.enabled]="targetsVisible()" [attr.aria-pressed]="targetsVisible()" (click)="toggleMarking('targets')">Targets</button>
+      </div>
+    </header>
+    <div class="inspect-bar" aria-live="polite">
+      @if (inspectedCandle(); as candle) {
+        <span>{{ candle.time }}</span>
+        <span>O {{ formatPrice(candle.open) }}</span>
+        <span>H <b class="positive">{{ formatPrice(candle.high) }}</b></span>
+        <span>L <b class="negative">{{ formatPrice(candle.low) }}</b></span>
+        <span>C {{ formatPrice(candle.close) }}</span>
+      } @else {
+        <span>{{ stock().symbol }} · {{ timeframe() }} candles</span>
+        <span>Drag to pan · Scroll to zoom · Hover to inspect</span>
+      }
+      <strong>Current {{ formatPrice(currentPrice()) }}</strong>
+    </div>
+  }
+
+  <svg
+    class="candles-chart"
+    [class.preview-chart]="compact()"
+    viewBox="0 0 800 330"
+    preserveAspectRatio="none"
+    role="img"
+    [attr.aria-label]="stock().symbol + ' price chart with ' + (compact() ? 'latest five-minute candles' : timeframe() + ' interval')"
+    (wheel)="onWheel($event)"
+    (pointerdown)="onPointerDown($event)"
+    (pointermove)="onPointerMove($event)"
+    (pointerup)="onPointerUp($event)"
+    (pointercancel)="onPointerUp($event)"
+    (pointerleave)="clearInspection()"
+  >
+    <g class="grid-lines">
+      @for (tick of tickValues(); track $index) {
+        <line [attr.x1]="PLOT_LEFT" [attr.x2]="PLOT_RIGHT" [attr.y1]="priceY(tick)" [attr.y2]="priceY(tick)" />
+        <text [attr.x]="PLOT_RIGHT + 7" [attr.y]="priceY(tick) + 3">{{ tick.toLocaleString('en-IN', { maximumFractionDigits: 0 }) }}</text>
+      }
+      <line [attr.x1]="PLOT_LEFT" [attr.x2]="PLOT_LEFT" [attr.y1]="PLOT_TOP" [attr.y2]="VOLUME_BOTTOM" />
+    </g>
+
+    @if (obVisible()) {
+      <g class="order-block">
+        <rect [attr.x]="zoneX" [attr.y]="Math.min(orderBlockTop, orderBlockBottom)" [attr.width]="zoneWidth" [attr.height]="Math.max(Math.abs(orderBlockTop - orderBlockBottom), 2)" />
+        <text [attr.x]="zoneX + 5" [attr.y]="Math.min(orderBlockTop, orderBlockBottom) + 11">OB zone</text>
+      </g>
+    }
+    @if (fvgVisible()) {
+      <g class="fvg-zone">
+        <rect [attr.x]="PLOT_LEFT" [attr.y]="Math.min(fairValueGapTop, fairValueGapBottom)" [attr.width]="zoneWidth * 0.68" [attr.height]="Math.max(Math.abs(fairValueGapTop - fairValueGapBottom), 2)" />
+        <text [attr.x]="PLOT_LEFT + 5" [attr.y]="Math.min(fairValueGapTop, fairValueGapBottom) + 11">FVG</text>
+      </g>
+    }
+
+    @for (line of priceLines(); track line.key) {
+      @if (line.visible && (line.key === 'current' || line.key === 'entry' && entryVisible() || line.key === 'stopLoss' && stopVisible() || (line.key === 'target1' || line.key === 'target2') && targetsVisible())) {
+        <g class="price-level" [class.current-level]="line.key === 'current'" [style.--level-color]="line.color">
+          <line [attr.x1]="PLOT_LEFT" [attr.x2]="PLOT_RIGHT" [attr.y1]="priceY(line.value)" [attr.y2]="priceY(line.value)" />
+          @if (!compact()) { <text [attr.x]="PLOT_RIGHT - 4" [attr.y]="priceY(line.value) - 3" text-anchor="end">{{ line.label }}</text> }
+        </g>
+      }
+    }
+
+    @for (candle of renderedCandles(); track candle.index; let index = $index) {
+      <g class="candle" [class.bullish]="candle.bullish" [class.bearish]="!candle.bullish">
+        <line [attr.x1]="candle.x" [attr.x2]="candle.x" [attr.y1]="candle.highY" [attr.y2]="candle.lowY" />
+        <rect [attr.x]="candle.x - Math.max(1, slotWidth() * 0.28)" [attr.y]="candle.bodyY" [attr.width]="Math.max(2, slotWidth() * 0.56)" [attr.height]="candle.bodyHeight" rx="0.7" />
+        @if (!compact() && index % tickStep() === 0) {
+          <text class="time-label" [attr.x]="candle.x" [attr.y]="VOLUME_BOTTOM + 13" text-anchor="middle">{{ candle.time }}</text>
+        }
+        <rect
+          class="volume-bar"
+          [class.bullish]="candle.bullish"
+          [class.bearish]="!candle.bullish"
+          [attr.x]="candle.x - Math.max(1, slotWidth() * 0.28)"
+          [attr.y]="VOLUME_BOTTOM - volumeHeight(candle.volume)"
+          [attr.width]="Math.max(2, slotWidth() * 0.56)"
+          [attr.height]="volumeHeight(candle.volume)"
+        />
+      </g>
+    }
+
+    @if (crosshairX() !== null && inspectedCandle()) {
+      <g class="crosshair">
+        <line [attr.x1]="crosshairX()" [attr.x2]="crosshairX()" [attr.y1]="PLOT_TOP" [attr.y2]="VOLUME_BOTTOM" />
+        <circle [attr.cx]="crosshairX()" [attr.cy]="priceY(inspectedCandle()!.close)" r="3" />
+      </g>
+    }
+  </svg>
+
+  @if (compact()) {
+    <div class="preview-price">5m · Current {{ formatPrice(currentPrice()) }}</div>
+  }
+</section>

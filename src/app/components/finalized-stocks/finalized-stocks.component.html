@@ -6,14 +6,25 @@
 
   <div class="cards">
     @for (stock of stocks; track stock.symbol) {
-      <article class="stock-card">
+      <article
+        class="stock-card"
+        tabindex="0"
+        role="button"
+        [attr.aria-label]="'Open detailed chart for ' + stock.name"
+        (click)="openChart(stock)"
+        (keydown)="onCardKeydown($event, stock)"
+        (pointerenter)="showPreview($event, stock)"
+        (pointerleave)="onCardPointerLeave($event)"
+        (focusin)="showPreview($event, stock)"
+        (focusout)="onCardPointerLeave($event)"
+      >
         <div class="card-title">
           <div class="name">
             <strong>{{ stock.name }}</strong>
             <span>({{ stock.symbol }})</span>
           </div>
           <span class="buy">Buy</span>
-          <button class="favorite" [attr.aria-label]="'Favorite ' + stock.name">☆</button>
+          <button class="favorite" type="button" [attr.aria-label]="'Favorite ' + stock.name" (click)="$event.stopPropagation()">☆</button>
         </div>
         <div class="price-line">
           <strong>{{ stock.price }}</strong>
@@ -41,7 +52,46 @@
             <span>{{ tag }}</span>
           }
         </div>
+
       </article>
     }
   </div>
+
+  @if (previewStock; as preview) {
+    <aside
+      class="chart-preview"
+      [style.left]="previewPosition.left"
+      [style.top]="previewPosition.top"
+      [attr.aria-label]="preview.name + ' five-minute chart preview'"
+      (pointerleave)="onPreviewPointerLeave($event)"
+    >
+      <header>
+        <strong>{{ preview.name }} <span>({{ preview.symbol }})</span></strong>
+        <span>5-minute preview · Current {{ preview.price }}</span>
+      </header>
+      <app-stock-chart [stock]="preview" [compact]="true" />
+    </aside>
+  }
+
+  @if (selectedStock; as stock) {
+    <div class="chart-backdrop" (click)="closeChart()">
+      <section
+        class="chart-dialog"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-label]="stock.name + ' detailed chart'"
+        (click)="$event.stopPropagation()"
+        (keydown.escape)="closeChart()"
+      >
+        <header class="dialog-heading">
+          <div>
+            <h3>{{ stock.name }} <span>({{ stock.symbol }})</span></h3>
+            <p>Interactive technical chart · sample candle data</p>
+          </div>
+          <button type="button" aria-label="Close chart" (click)="closeChart()">×</button>
+        </header>
+        <app-stock-chart [stock]="stock" />
+      </section>
+    </div>
+  }
 </section>
