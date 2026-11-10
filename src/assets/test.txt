@@ -1,11 +1,1434 @@
-On hovering over a finalized stock card:
-Show a compact chart preview.
-Display the latest 5-minute candles.
-Show OB and FVG zones.
-Show entry, SL and target lines.
-Display the current price.
-On clicking a stock card:
-Open a detailed interactive chart.
-Allow switching between 1m, 5m and 15m.
-Zoom, pan and inspect historical candles.
-Show or hide individual technical markings.
+# Trading Engine – Complete Formula & Rulebook
+
+Technical specification – Version 1.0
+
+We're now moving from strategy design to the mathematical foundation of the trading engine.
+
+I want to approach this differently from a typical collection of trading indicators. Every rule must have:
+
+1. An exact mathematical formula.
+2. Clearly defined input data.
+3. A timeframe.
+4. A pass/fail condition.
+5. A configurable threshold.
+6. A reason explaining why a stock passed or failed.
+7. A backtesting method to establish whether it actually improves profitability.
+
+Our objective is to implement these formulas in Python so that the same calculations are used in historical backtesting, live scanning and paper trading.
+
+Important: There is no universally profitable formula for an indicator or trading setup. Some indicators have standardized mathematical definitions; concepts such as Order Blocks, BOS and CHOCH have multiple competing definitions. For those, I'll specify one deterministic version for our engine rather than pretend there is one universally accepted formula.
+
+Our initial assumptions:
+
+| Parameter              | Specification                   |
+| ---------------------- | ------------------------------- |
+| Market                 | NSE equities                    |
+| Watchlist              | 500 stocks                      |
+| Starting capital       | ₹1,00,000                       |
+| Trading mode           | Paper                           |
+| Primary timeframe      | 5 minutes                       |
+| Confirmation timeframe | 15 minutes                      |
+| Execution timeframe    | 1 minute                        |
+| Data provider          | DhanHQ                          |
+| Scanner                | Top 15 bullish + Top 15 bearish |
+
+## 1. Mathematical conventions and data requirements
+
+Before defining individual rules, we need one common data standard.
+
+### Candle data
+
+Every candle must contain:
+
+| Variable  | Meaning          |
+| --------- | ---------------- |
+| \\(O_t\\) | Open price       |
+| \\(H_t\\) | High price       |
+| \\(L_t\\) | Low price        |
+| \\(C_t\\) | Close price      |
+| \\(V_t\\) | Traded volume    |
+| \\(T_t\\) | Candle timestamp |
+
+The engine must use completed candles for confirmed signals. An unfinished candle can be used for live monitoring, but its signal must be marked provisional.
+
+### Timeframe conventions
+
+| Calculation        | Timeframe                |
+| ------------------ | ------------------------ |
+| EMA 9 / 20         | 5m                       |
+| EMA 50 / 200       | 15m / Daily              |
+| VWAP               | Session intraday         |
+| RSI 14             | 5m                       |
+| MACD 12,26,9       | 5m                       |
+| ATR 14             | 5m                       |
+| Relative Volume    | 5m, time-of-day adjusted |
+| BOS / CHOCH        | 5m, confirmed by 15m     |
+| FVG / Order Block  | 5m, 15m confirmation     |
+| Opening Range      | First 15 minutes         |
+| Entry confirmation | 1m or 5m                 |
+
+For Indian equities, use the NSE regular session, 09:15–15:30 IST. Exclude pre-open data from normal intraday indicator calculations.
+
+# 2. Liquidity and stock-quality formulas
+
+These are the first filters applied to the 500 stocks.
+
+### Rule R001 – Average Daily Traded Value
+
+Market cap is not enough to determine whether a stock is tradable.
+
+We calculate average daily traded value over the previous 20 completed sessions:
+
+\\[ ADTV\_{20}=\frac{1}{20}\sum\_{i=1}^{20}(P_i\times V_i) \\]
+
+Where:
+
+- \\(P_i\\) = daily VWAP or a consistent traded-value price proxy.
+- \\(V_i\\) = daily traded volume.
+
+Prefer actual traded turnover from exchange data when available rather than estimating it from close price.
+
+Initial rule:
+
+\\[ ADTV\_{20}\geq ₹10\text{ crore} \\]
+
+
+
+PASS
+
+&#x20;if the threshold is satisfied.
+
+
+
+This ₹10 crore threshold is an initial universe filter, not a universal liquidity standard. We will test whether it is appropriate for our order sizes.
+
+### Rule R002 – Bid-Ask Spread
+
+The quoted spread is:
+
+\\[ Spread=Ask-Bid \\]
+
+Spread percentage:
+
+\\[ Spread\\%= \frac{Ask-Bid}{(Ask+Bid)/2}\times100 \\]
+
+Example:
+
+- Bid = ₹999
+- Ask = ₹1,001
+- Midpoint = ₹1,000
+
+\\[ Spread\\%=0.20\\% \\]
+
+Initial condition:
+
+\\[ Spread\\%\leq0.10\\% \\]
+
+We should also consider actual order-book depth and spread stability, not only one snapshot.
+
+The spread calculation is consistent with standard execution-cost measurement.&#x20;
+
+[image](https://www.google.com/s2/favicons?domain=https://www.sec.gov\&sz=32)
+
+Report on the Practice of Preferencing+1
+
+
+
+### Rule R003 – Market Capitalization Classification
+
+Market capitalization:
+
+\\[ MarketCap=Price\times OutstandingShares \\]
+
+For our database, use the six-month average market-cap data from your Excel and the official AMFI classification.
+
+This is a stock-universe classification, not a direct buy/sell signal.
+
+Recommended treatment:
+
+- Large cap: Normal liquidity requirements.
+- Mid cap: Normal liquidity requirements.
+- Small cap: Additional spread and depth checks.
+- Unclassified: Do not automatically reject; validate separately.
+
+Official classification: [AMFI stock categorisation](https://www.amfiindia.com/otherdata/categorisation-of-stocks?utm_source=chatgpt.com).
+
+### Additional quality metric – Amihud illiquidity
+
+This can help identify stocks whose prices move substantially even with relatively little traded value.
+
+\\[ ILLIQ=\frac{1}{N}\sum\_{i=1}^{N} \frac{|R_i|}{TradedValue_i} \\]
+
+Where \\(R_i\\) is the daily return.
+
+Higher values indicate greater price impact per unit of traded value. We will use it as a supplementary filter rather than a hard rejection rule.
+
+# 3. Trend confirmation formulas
+
+### Rule R004 – VWAP
+
+Standard mathematical formula
+
+VWAP is calculated from the start of the trading session.
+
+First calculate typical price:
+
+\\[ TP_t=\frac{H_t+L_t+C_t}{3} \\]
+
+Then:
+
+\\[ VWAP_t= \frac{\sum\_{i=1}^{t}(TP_i\times V_i)} {\sum\_{i=1}^{t}V_i} \\]
+
+Bullish condition:
+
+\\[ C_t>VWAP_t \\]
+
+Bearish condition:
+
+\\[ C_t\<VWAP_t \\]
+
+However, merely being above VWAP is not enough.
+
+Our enhanced bullish rule:
+
+\\[ C_t>VWAP_t \\]
+
+\\[ VWAP_t>VWAP\_{t-1} \\]
+
+\\[ EMA9_t>EMA20_t \\]
+
+All three should be satisfied for the strongest bullish trend confirmation.
+
+For bearish conditions, reverse the inequalities.
+
+Source: [TradingView VWAP calculation](https://www.tradingview.com/support/solutions/43000502018-volume-weighted-average-price-vwap/?utm_source=chatgpt.com) and [Zerodha VWAP explanation](https://zerodha.com/varsity/chapter/supplementary-notes-1/?utm_source=chatgpt.com).
+
+### Rule R005 – EMA 9 / EMA 20 alignment
+
+Standard mathematical formula
+
+EMA smoothing coefficient:
+
+\\[ \alpha=\frac{2}{n+1} \\]
+
+EMA calculation:
+
+\\[ EMA_t=\alpha C_t+(1-\alpha)EMA\_{t-1} \\]
+
+Initial EMA:
+
+\\[ EMA_n=SMA_n \\]
+
+For EMA 9:
+
+\\[ \alpha_9=\frac{2}{10}=0.2 \\]
+
+For EMA 20:
+
+\\[ \alpha\_{20}=\frac{2}{21}=0.095238 \\]
+
+Bullish:
+
+\\[ EMA9>EMA20 \\]
+
+Bearish:
+
+\\[ EMA9\<EMA20 \\]
+
+Additional trend-strength measurement:
+
+\\[ EMASeparation\\%= \frac{EMA9-EMA20}{EMA20}\times100 \\]
+
+A larger positive separation indicates stronger bullish separation, but we should not assume that a larger value always means a better entry. Extremely stretched prices can have poor reward-to-risk.
+
+Source: [TradingView EMA formula](https://www.tradingview.com/support/solutions/43000502589-moving-averages/?utm_source=chatgpt.com).
+
+### Rule R005B – 50 and 200 EMA trend filter
+
+We also need higher-timeframe confirmation.
+
+Bullish:
+
+\\[ C_t>EMA50_t>EMA200_t \\]
+
+Bearish:
+
+\\[ C_t\<EMA50_t\<EMA200_t \\]
+
+I recommend using daily EMA 200 for the broader market trend and 15-minute EMA 50/200 for intraday context.
+
+These are separate confirmations, not mandatory conditions for every strategy. Requiring all of them could eliminate early reversals and valid intraday setups.
+
+# 4. Momentum formulas
+
+### Rule R007 – RSI (14)
+
+Wilder's standard formula
+
+First calculate price change:
+
+\\[ Change_t=C_t-C\_{t-1} \\]
+
+Positive gain:
+
+\\[ Gain_t=\max(Change_t,0) \\]
+
+Loss:
+
+\\[ Loss_t=\max(-Change_t,0) \\]
+
+Calculate Wilder's smoothed averages:
+
+\\[ AvgGain_t= \frac{13\times AvgGain\_{t-1}+Gain_t}{14} \\]
+
+\\[ AvgLoss_t= \frac{13\times AvgLoss\_{t-1}+Loss_t}{14} \\]
+
+Relative strength:
+
+\\[ RS=\frac{AvgGain}{AvgLoss} \\]
+
+RSI:
+
+\\[ RSI=100-\frac{100}{1+RS} \\]
+
+Initial average gain/loss is the simple average of the first 14 observations.
+
+Our proposed intraday conditions:
+
+| RSI      | Interpretation                        |
+| -------- | ------------------------------------- |
+| 50–55    | Weak/early bullish momentum           |
+| 55–70    | Preferred bullish zone                |
+| 70–80    | Strong but potentially stretched      |
+| Above 80 | Avoid chasing without a special setup |
+| 45–50    | Weak/early bearish momentum           |
+| 30–45    | Preferred bearish zone                |
+| Below 30 | Potentially stretched                 |
+
+For a normal bullish setup:
+
+\\[ 55\leq RSI\_{14}\leq70 \\]
+
+For bearish:
+
+\\[ 30\leq RSI\_{14}\leq45 \\]
+
+These ranges are configurable starting hypotheses, not universal profitable thresholds.
+
+Source: [TA-Lib RSI mathematical definition](https://ta-lib.org/functions/rsi.html?utm_source=chatgpt.com).
+
+### Rule R008 – MACD
+
+Standard mathematical formula
+
+MACD uses three EMAs.
+
+\\[ MACD=EMA\_{12}-EMA\_{26} \\]
+
+Signal line:
+
+\\[ Signal=EMA_9(MACD) \\]
+
+Histogram:
+
+\\[ Histogram=MACD-Signal \\]
+
+Bullish momentum confirmation:
+
+\\[ MACD_t>Signal_t \\]
+
+And preferably:
+
+\\[ Histogram_t>0 \\]
+
+Bearish:
+
+\\[ MACD_t\<Signal_t \\]
+
+\\[ Histogram_t<0 \\]
+
+Additional momentum acceleration:
+
+\\[ Histogram_t>Histogram\_{t-1} \\]
+
+for bullish acceleration, with the opposite condition for bearish acceleration.
+
+Important: MACD and EMA alignment are correlated because MACD is also derived from EMAs. We should not count both as fully independent confirmations in the scoring model.
+
+# 5. Volume confirmation formulas
+
+### Rule R006 – Relative Volume (RVOL)
+
+This is one of the most important filters for our intraday scanner.
+
+A simple RVOL formula is:
+
+\\[ RVOL_t= \frac{CurrentVolume_t} {AverageVolume\_{previous\ N\ bars}} \\]
+
+However, for intraday trading, we should use time-of-day-adjusted RVOL.
+
+For a 5-minute candle at 10:00 AM:
+
+\\[ BaselineVolume\_{10:00}= \frac{1}{20}\sum\_{d=1}^{20}Volume\_{d,10:00} \\]
+
+Then:
+
+\\[ RVOL\_{10:00}= \frac{Today'sVolume\_{10:00}} {BaselineVolume\_{10:00}} \\]
+
+Example:
+
+- Today's 10:00 candle volume: 200,000
+- Average 10:00 candle volume over previous 20 sessions: 100,000
+
+\\[ RVOL=2.0 \\]
+
+2× normal volume
+
+Proposed classification:
+
+| RVOL      | Interpretation |
+| --------- | -------------- |
+| Below 0.8 | Weak           |
+| 0.8–1.0   | Normal/low     |
+| 1.0–1.5   | Moderate       |
+| 1.5–2.0   | Strong         |
+| Above 2.0 | Very strong    |
+
+Initial mandatory condition:
+
+\\[ RVOL\geq1.5 \\]
+
+For a breakout, we can additionally require the volume of the breakout candle to exceed its time-adjusted baseline.
+
+We must compare equivalent time slots. Comparing a 9:20 candle to the average volume of all candles would produce misleading results.
+
+Sources: [TradingView Relative Volume at Time](https://www.tradingview.com/support/solutions/43000705489-relative-volume-at-time/?utm_source=chatgpt.com) and [StockCharts RVOL methodology](https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays/technical-indicators/relative-volume-rvol?utm_source=chatgpt.com).
+
+### Additional formula – Volume Surge
+
+\\[ VolumeSurge\\%= \frac{CurrentVolume-BaselineVolume} {BaselineVolume}\times100 \\]
+
+If RVOL is 2:
+
+\\[ VolumeSurge=100\\% \\]
+
+This metric is useful for the stock cards and scanner.
+
+# 6. Opening Range Breakout – ORB
+
+### Rule R009
+
+We will use a 15-minute opening range.
+
+For NSE:
+
+\\[ ORH=\max(H\_{9:15},H\_{9:20},H\_{9:25}) \\]
+
+\\[ ORL=\min(L\_{9:15},L\_{9:20},L\_{9:25}) \\]
+
+Where each candle represents five minutes.
+
+Opening range width:
+
+\\[ ORWidth=ORH-ORL \\]
+
+Normalized width:
+
+\\[ ORWidth\\%=\frac{ORH-ORL}{ORL}\times100 \\]
+
+### Bullish breakout
+
+A bullish breakout requires:
+
+1. Completed candle close above ORH.
+2. Relative volume at least 1.5.
+3. Price above VWAP.
+4. EMA 9 above EMA 20.
+5. Sufficient distance to the next resistance.
+
+Mathematically:
+
+\\[ C_t>ORH \\]
+
+\\[ RVOL_t\geq1.5 \\]
+
+\\[ C_t>VWAP_t \\]
+
+\\[ EMA9_t>EMA20_t \\]
+
+### Bearish breakout
+
+\\[ C_t\<ORL \\]
+
+\\[ RVOL_t\geq1.5 \\]
+
+\\[ C_t\<VWAP_t \\]
+
+\\[ EMA9_t\<EMA20_t \\]
+
+### Breakout buffer
+
+To avoid treating a one-tick move as a meaningful breakout:
+
+\\[ BreakoutLevel=ORH+(0.05\times ATR\_{14}) \\]
+
+For bearish:
+
+\\[ BreakoutLevel=ORL-(0.05\times ATR\_{14}) \\]
+
+The 0.05 ATR buffer is a proposed starting parameter. It needs testing.
+
+### Entry
+
+We have two modes:
+
+- Aggressive: Enter after the breakout candle closes.
+- Conservative: Wait for a retest of ORH/ORL and a confirming candle.
+
+For our first implementation, I recommend the conservative method.
+
+Source: [Opening Range Breakout – Wiley reference](https://onlinelibrary.wiley.com/doi/10.1002/9781119203933.ch11?utm_source=chatgpt.com).
+
+# 7. Market regime and market breadth
+
+### Rule R003 – Market regime
+
+We need to determine whether the overall market supports bullish or bearish trades.
+
+Use:
+
+- NIFTY 50
+- NIFTY BANK
+- NIFTY 500 breadth (or our available universe breadth)
+- Market VWAP
+- Market EMA 20
+
+Define:
+
+\\[ M_t=\frac{NIFTY_t}{VWAP\_{NIFTY,t}} \\]
+
+Bullish market conditions:
+
+\\[ NIFTY>VWAP \\]
+
+\\[ EMA20\_{NIFTY,5m}>EMA20\_{NIFTY,5m,t-1} \\]
+
+Bearish conditions are the inverse.
+
+We should also calculate breadth.
+
+### Advance/Decline ratio
+
+\\[ ADRatio=\frac{AdvancingStocks}{DecliningStocks} \\]
+
+Net advances:
+
+\\[ NetAdvances=Advancers-Decliners \\]
+
+Breadth percentage:
+
+\\[ Breadth\\%= \frac{Advancers} {Advancers+Decliners}\times100 \\]
+
+Example:
+
+- 350 advancing stocks
+- 150 declining stocks
+
+\\[ ADRatio=\frac{350}{150}=2.33 \\]
+
+\\[ Breadth=70\\% \\]
+
+Proposed regime classification:
+
+| Conditions                                         | Market regime    |
+| -------------------------------------------------- | ---------------- |
+| NIFTY above VWAP, rising EMA and breadth above 60% | Strong bullish   |
+| NIFTY above VWAP and breadth above 50%             | Bullish          |
+| NIFTY below VWAP and breadth below 40%             | Bearish          |
+| NIFTY below VWAP and falling EMA                   | Strong bearish   |
+| Mixed signals                                      | Sideways / mixed |
+
+We should use multiple conditions rather than classify the entire market using one indicator.
+
+For our own 500-stock universe, calculate breadth separately from the full NSE universe. These two breadth readings must not be confused.
+
+Source: [TradingView market breadth formulas](https://in.tradingview.com/support/solutions/43000794825-market-breadth-advancing-and-declining/?utm_source=chatgpt.com).
+
+### NIFTY BANK confirmation
+
+For an individual stock:
+
+- Banking stock long: NIFTY BANK direction should ideally agree.
+- Non-banking stock long: NIFTY 50 direction should ideally agree.
+
+This is a confirmation score, not an unconditional requirement.
+
+### High-volatility regime
+
+We should use India VIX as a market-risk measure.
+
+The engine should compare current VIX against its own historical distribution, rather than use an arbitrary fixed VIX level for every market condition.
+
+One possible normalized measure:
+
+\\[ VIXZ= \frac{VIX_t-SMA\_{20}(VIX)} {STD\_{20}(VIX)} \\]
+
+If:
+
+\\[ VIXZ>2 \\]
+
+we flag an unusually high-volatility regime and tighten risk controls or disable selected strategies.
+
+# 8. Relative Strength – stock versus NIFTY
+
+This is particularly important for selecting the best stocks among 500.
+
+### Relative Strength Ratio
+
+\\[ RSRatio_t=\frac{StockPrice_t}{NIFTY_t} \\]
+
+For easier comparison, normalize to 100 at the beginning of the measurement period:
+
+\\[ RSI\_{100,t} = 100\times \frac{StockPrice_t/StockPrice_0} {NIFTY_t/NIFTY_0} \\]
+
+Here, `RSI_100` is just a normalized relative-strength line, not the Relative Strength Index.
+
+Interpretation:
+
+- Above 100: Stock outperformed NIFTY.
+- Below 100: Stock underperformed NIFTY.
+- Rising ratio: Relative strength improving.
+- Falling ratio: Relative strength weakening.
+
+For intraday scanning, we should calculate it over 15, 30 and 60 minutes.
+
+### Relative performance percentage
+
+\\[ RelativePerformance= StockReturn\\%-NIFTYReturn\\% \\]
+
+Example:
+
+- Reliance gained 1.5%.
+- NIFTY gained 0.5%.
+
+\\[ RelativePerformance=1.0\text{ percentage point} \\]
+
+This makes Reliance relatively stronger than the benchmark.
+
+For bearish candidates, we look for stocks underperforming NIFTY.
+
+Source: [Fidelity Relative Strength Comparison](https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/relative-strength-comparison?utm_source=chatgpt.com).
+
+# 9. BOS – Break of Structure
+
+Deterministic engine definition
+
+BOS is a price-structure concept, not a standardized mathematical indicator. We need a precise swing-detection algorithm.
+
+### Step 1 – Identify swing highs and lows
+
+Use a 2-left, 2-right pivot method.
+
+Swing high:
+
+\\[ H_t>H\_{t-1},H\_{t-2},H\_{t+1},H\_{t+2} \\]
+
+Swing low:
+
+\\[ L_t\<L\_{t-1},L\_{t-2},L\_{t+1},L\_{t+2} \\]
+
+A pivot is only confirmed after the two candles on the right have closed.
+
+This avoids look-ahead bias.
+
+### Step 2 – Bullish BOS
+
+Let \\(SH\\) be the most recent confirmed structural swing high.
+
+\\[ C_t>SH+\delta \\]
+
+Where:
+
+\\[ \delta=\max(1\text{ tick},0.05\times ATR\_{14}) \\]
+
+Additional conditions:
+
+- The candle closes above the level.
+- The level has not already been broken.
+- The break has adequate displacement.
+- Preferably, RVOL confirms participation.
+
+### Step 3 – Bearish BOS
+
+Let \\(SL\\) be the most recent confirmed structural swing low.
+
+\\[ C_t\<SL-\delta \\]
+
+### BOS strength
+
+We can quantify the break:
+
+\\[ Displacement= \frac{|C_t-O_t|}{ATR\_{14}} \\]
+
+Initial condition:
+
+\\[ Displacement\geq0.5 \\]
+
+This measures the size of the breakout candle body relative to ATR.
+
+The value 0.5 is an initial calibration parameter, not a proven universal threshold.
+
+Important implementation detail: The engine must not use a swing high or low before it is confirmed. Otherwise, our backtest will use information that was not available at the time of the trade.
+
+# 10. CHOCH – Change of Character
+
+Deterministic engine definition
+
+CHOCH attempts to identify a structural shift against the previous trend.
+
+### Bullish CHOCH
+
+Previous market structure:
+
+\\[ LowerHigh+LowerLow \\]
+
+Then price closes above the last confirmed lower high:
+
+\\[ C_t>LastLowerHigh+\delta \\]
+
+This creates a potential bullish structural change.
+
+### Bearish CHOCH
+
+Previous market structure:
+
+\\[ HigherHigh+HigherLow \\]
+
+Then:
+
+\\[ C_t\<LastHigherLow-\delta \\]
+
+This creates a potential bearish structural change.
+
+### Confirmation
+
+For stronger confirmation:
+
+1. CHOCH on 5-minute chart.
+2. Confirming 15-minute candle close.
+3. Price relative to VWAP.
+4. Volume confirmation.
+
+We will distinguish:
+
+- `CHOCH_DETECTED`
+- `CHOCH_CONFIRMED`
+- `TREND_REVERSAL_CONFIRMED`
+
+A CHOCH is not automatically a trend reversal. This distinction is important for avoiding premature entries.
+
+# 11. Fair Value Gap – FVG
+
+Three-candle mathematical definition
+
+This is one of the easiest smart-money concepts to formalize.
+
+Let the candles be:
+
+- Candle 1: \\(t-2\\)
+- Candle 2: \\(t-1\\)
+- Candle 3: \\(t\\)
+
+### Bullish FVG
+
+\\[ Low_t>High\_{t-2} \\]
+
+FVG boundaries:
+
+\\[ FVG\_{Low}=High\_{t-2} \\]
+
+\\[ FVG\_{High}=Low_t \\]
+
+Gap size:
+
+\\[ FVGSize=Low_t-High\_{t-2} \\]
+
+### Bearish FVG
+
+\\[ High_t\<Low\_{t-2} \\]
+
+Boundaries:
+
+\\[ FVG\_{Low}=High_t \\]
+
+\\[ FVG\_{High}=Low\_{t-2} \\]
+
+Gap size:
+
+\\[ FVGSize=Low\_{t-2}-High_t \\]
+
+### FVG quality score
+
+We should reject tiny gaps that are caused by ordinary price noise.
+
+\\[ FVG\_{ATR}=\frac{FVGSize}{ATR\_{14}} \\]
+
+Initial qualification:
+
+\\[ FVG\_{ATR}\geq0.15 \\]
+
+Additional confirmation:
+
+- Middle candle body should be meaningful relative to ATR.
+- Break of structure is preferred.
+- Volume should confirm displacement.
+- FVG should not already be fully mitigated.
+
+### FVG mitigation
+
+For bullish FVG:
+
+- Price enters the zone: Partial mitigation.
+- Price reaches the lower boundary: Full mitigation.
+- Price closes below the lower boundary: Invalidated under our conservative definition.
+
+For bearish FVG, reverse the conditions.
+
+These status definitions will also be used for the chart overlay.
+
+# 12. Order Block – OB
+
+Our proposed deterministic definition
+
+Order Blocks are not universally standardized. We need to avoid subjective identification.
+
+### Bullish Order Block
+
+Identify:
+
+1. A bearish candle.
+2. One or more subsequent bullish displacement candles.
+3. A confirmed bullish BOS.
+4. The last qualifying bearish candle before that displacement.
+
+The zone is:
+
+\\[ OB\_{High}=High\_{\text{last bearish candle}} \\]
+
+\\[ OB\_{Low}=Low\_{\text{last bearish candle}} \\]
+
+### Bearish Order Block
+
+Identify:
+
+1. A bullish candle.
+2. Subsequent bearish displacement.
+3. Confirmed bearish BOS.
+4. Last qualifying bullish candle before displacement.
+
+The zone is the high and low of that candle.
+
+### Order Block quality
+
+Displacement:
+
+\\[ D=\frac{|C_t-O_t|}{ATR\_{14}} \\]
+
+Initial qualifying condition:
+
+\\[ D\geq1.0 \\]
+
+Also require:
+
+- Confirmed BOS.
+- Candle direction opposite to displacement.
+- No previous invalidation.
+- Preferably, volume expansion.
+
+### Order Block status
+
+| Status              | Definition                                           |
+| ------------------- | ---------------------------------------------------- |
+| Fresh               | Price has not revisited the zone                     |
+| Touched             | Price has entered the zone                           |
+| Partially mitigated | Price has penetrated part of the zone                |
+| Fully mitigated     | Price has traversed the entire zone                  |
+| Invalidated         | Price closes beyond the zone's invalidation boundary |
+
+We should not claim that every order block represents institutional orders. It is simply a price-action zone identified by our algorithm.
+
+Reference for the implemented structure conventions: [Smart Money Concepts methodology](https://openfno.com/docs/strategies/smart-money-concepts/?utm_source=chatgpt.com).
+
+# 13. Support and Resistance formulas
+
+We should use multiple independent methods rather than rely on a single indicator.
+
+### Method 1 – Previous Day High and Low
+
+\\[ PDH=PreviousDayHigh \\]
+
+\\[ PDL=PreviousDayLow \\]
+
+These are direct market-data levels.
+
+### Method 2 – Traditional Pivot Points
+
+Let previous day's high, low and close be \\(H,L,C\\).
+
+\\[ P=\frac{H+L+C}{3} \\]
+
+\\[ R1=2P-L \\]
+
+\\[ S1=2P-H \\]
+
+\\[ R2=P+(H-L) \\]
+
+\\[ S2=P-(H-L) \\]
+
+\\[ R3=H+2(P-L) \\]
+
+\\[ S3=L-2(H-P) \\]
+
+These are the standard floor pivot formulas.&#x20;
+
+[image](https://www.google.com/s2/favicons?domain=https://in.tradingview.com\&sz=32)
+
+TradingView India+1
+
+
+
+### Method 3 – Dynamic swing support/resistance
+
+Use the confirmed swing highs and lows calculated by our 2-left, 2-right pivot algorithm.
+
+### Method 4 – Zone clustering
+
+We can cluster nearby levels into one zone.
+
+For example:
+
+- Previous Day High: ₹1,340
+- Swing High: ₹1,342
+- Pivot R1: ₹1,339
+
+These levels form a potential resistance cluster.
+
+A simple clustering threshold:
+
+\\[ Distance\\%= \frac{|Level_1-Level_2|} {CurrentPrice}\times100 \\]
+
+Initial cluster threshold:
+
+\\[ Distance\\%\leq0.20\\% \\]
+
+The resulting zone should be displayed as an area, not an exact prediction of where the price will reverse.
+
+### Resistance proximity
+
+For a bullish trade:
+
+\\[ AvailableUpside= \frac{NearestResistance-Entry}{Entry}\times100 \\]
+
+We should reject an entry when the nearest resistance is too close to provide the required reward/risk.
+
+For bearish trades, calculate the available downside to the nearest support.
+
+# 14. ATR – Average True Range
+
+### Rule R014 – Volatility and stop-loss validation
+
+Wilder's standard formula
+
+First calculate True Range:
+
+\\[ TR_t=\max \begin{cases} H_t-L_t\\\ |H_t-C\_{t-1}|\\\ |L_t-C\_{t-1}| \end{cases} \\]
+
+Initial ATR:
+
+\\[ ATR\_{14}=\frac{\sum\_{i=1}^{14}TR_i}{14} \\]
+
+Subsequent ATR:
+
+\\[ ATR_t= \frac{13\times ATR\_{t-1}+TR_t}{14} \\]
+
+ATR measures volatility, not price direction.
+
+Source: [TradingView ATR calculation](https://www.tradingview.com/support/solutions/43000501823-average-true-range-atr/?utm_source=chatgpt.com) and [Fidelity ATR explanation](https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/atr?utm_source=chatgpt.com).
+
+### ATR percentage
+
+We should normalize ATR to compare stocks with different prices.
+
+\\[ ATR\\%=\frac{ATR\_{14}}{Close}\times100 \\]
+
+Example:
+
+- Price = ₹1,000
+- ATR = ₹10
+
+\\[ ATR\\%=1\\% \\]
+
+This helps classify volatility.
+
+# 15. Entry, Stop Loss and Profit Booking
+
+These are not merely scanner rules. They form the trade-management engine.
+
+### R014A – Structure-based stop loss
+
+For bullish:
+
+\\[ SL=SwingLow-(Buffer) \\]
+
+For bearish:
+
+\\[ SL=SwingHigh+(Buffer) \\]
+
+Buffer:
+
+\\[ Buffer=0.2\times ATR\_{14} \\]
+
+The 0.2 ATR buffer is an initial test parameter. We can compare it with 0.1, 0.15, 0.25 and other values during backtesting.
+
+### R014B – ATR-based stop loss
+
+Bullish:
+
+\\[ SL=Entry-(1.5\times ATR\_{14}) \\]
+
+Bearish:
+
+\\[ SL=Entry+(1.5\times ATR\_{14}) \\]
+
+### R014C – Final stop-loss selection
+
+I recommend combining structural and volatility-based stops.
+
+For bullish:
+
+\\[ SL=\min(StructuralSL,ATRStop) \\]
+
+For bearish:
+
+\\[ SL=\max(StructuralSL,ATRStop) \\]
+
+This chooses the farther protective stop.
+
+But there is a catch: a farther stop increases capital risk. If the required stop makes the position too small or the reward/risk inadequate, reject the setup. Never force the stop closer just to fit a preferred quantity.
+
+### R015 – Risk-to-Reward
+
+For bullish:
+
+\\[ Risk=Entry-SL \\]
+
+\\[ Reward=Target-Entry \\]
+
+\\[ RR=\frac{Reward}{Risk} \\]
+
+For bearish:
+
+\\[ Risk=SL-Entry \\]
+
+\\[ Reward=Entry-Target \\]
+
+Initial mandatory condition:
+
+\\[ RR\geq2 \\]
+
+This must be calculated against a realistic executable target after costs, not merely the next theoretical resistance level.
+
+### Profit targets
+
+Let:
+
+\\[ R=|Entry-SL| \\]
+
+Then:
+
+\\[ T1=Entry+(1.5R) \\]
+
+\\[ T2=Entry+(2R) \\]
+
+\\[ T3=Entry+(3R) \\]
+
+For short trades:
+
+\\[ T1=Entry-(1.5R) \\]
+
+\\[ T2=Entry-(2R) \\]
+
+\\[ T3=Entry-(3R) \\]
+
+However, we should not book a target blindly if a strong support/resistance zone is immediately before it. Target placement should respect both risk multiples and market structure.
+
+### Profit booking percentages
+
+Initial proposed configuration:
+
+| Target | Quantity to book |
+| ------ | ---------------- |
+| T1     | 40%              |
+| T2     | 30%              |
+| T3     | 30%              |
+
+These percentages will be tested against alternative exits, including full exits at 2R and trailing stops.
+
+### Trailing stop-loss
+
+After T1, a possible trailing stop is:
+
+For long:
+
+\\[ TrailingSL= \max(PreviousSL,HighestClose-1.5ATR) \\]
+
+For short:
+
+\\[ TrailingSL= \min(PreviousSL,LowestClose+1.5ATR) \\]
+
+The trailing stop should only tighten, never widen.
+
+We must also test whether moving the stop to breakeven immediately after T1 reduces or improves overall expectancy.
+
+# 16. Position sizing and daily risk management
+
+These are hard safety rules.
+
+### R016 – Position sizing
+
+\\[ RiskAmount=Capital\times RiskPercentage \\]
+
+For our initial capital:
+
+\\[ ₹1,00,000\times0.005=₹500 \\]
+
+Quantity:
+
+\\[ Q= \left\lfloor \frac{RiskAmount} {|Entry-SL|} \right\rfloor \\]
+
+Then reduce quantity further to account for:
+
+- Lot size, if applicable.
+- Available capital.
+- Brokerage and statutory charges.
+- Expected slippage.
+- Maximum participation in market volume.
+
+A more accurate risk constraint is:
+
+\\[ Q\times(|Entry-SL|+ExpectedCostsPerShare) \leq ₹500 \\]
+
+### R017 – Maximum daily loss
+
+\\[ DailyPnL=RealizedPnL+UnrealizedPnL-EstimatedCosts \\]
+
+Daily loss limit:
+
+\\[ MaxDailyLoss=Capital\times1.5\\% \\]
+
+\\[ =₹1,500 \\]
+
+When:
+
+\\[ DailyPnL\leq-₹1,500 \\]
+
+The engine must:
+
+1. Disable new entries.
+2. Cancel unfilled entry orders.
+3. Alert the dashboard.
+4. Manage existing positions according to the emergency exit policy.
+5. Record the risk-limit event.
+
+The daily loss limit must not be bypassable by disabling an ordinary trading rule.
+
+### Maximum simultaneous positions
+
+\\[ OpenPositions\leq3 \\]
+
+But we should additionally consider correlated exposure.
+
+For example, taking three banking stocks in the same direction may effectively be one concentrated sector bet.
+
+I recommend a sector exposure limit and a portfolio-wide aggregate risk limit.
+
+# 17. Final scanner scoring formula
+
+Now we combine the calculations into one ranking system.
+
+We previously designed a 100-point score.
+
+Here is the mathematical definition.
+
+| Component            | Weight | Measurement            |
+| -------------------- | ------ | ---------------------- |
+| Relative strength    | 20     | Stock vs NIFTY         |
+| Relative volume      | 20     | Time-adjusted RVOL     |
+| VWAP + EMA alignment | 20     | Trend conditions       |
+| BOS / price action   | 15     | Structure confirmation |
+| RSI + MACD           | 10     | Momentum               |
+| Support/resistance   | 10     | Trade location         |
+| FVG / Order Block    | 5      | Zone confirmation      |
+| Total                | 100    |                        |
+
+### Normalize every score
+
+For each component:
+
+\\[ Score_i\in[0,Weight_i] \\]
+
+Total:
+
+\\[ TotalScore=\sum\_{i=1}^{7}Score_i \\]
+
+Example scoring:
+
+| Component         | Score  |
+| ----------------- | ------ |
+| Relative strength | 18/20  |
+| RVOL              | 19/20  |
+| VWAP + EMA        | 18/20  |
+| BOS               | 13/15  |
+| RSI + MACD        | 8/10   |
+| S/R               | 9/10   |
+| FVG / OB          | 4/5    |
+| Total             | 89/100 |
+
+89/100 – Strong candidate
+
+### Final ranking thresholds
+
+| Score    | Classification         |
+| -------- | ---------------------- |
+| 80–100   | High-quality candidate |
+| 70–79    | Watchlist              |
+| 60–69    | Low-priority           |
+| Below 60 | Reject                 |
+
+But the score alone must never authorize a trade.
+
+The mandatory conditions must pass independently:
+
+- Liquidity.
+- Spread.
+- Market regime compatibility.
+- Trend or valid setup trigger.
+- Risk/reward.
+- Daily risk availability.
+- No data-quality issues.
+
+Important improvement: Since EMA, MACD and RSI can be correlated, we must avoid double-counting the same underlying price momentum. We will test the incremental contribution of each score component.
+
+# 18. Complete rule registry – Version 1.0
+
+This is the consolidated formula inventory I recommend implementing.
+
+| ID    | Rule               | Formula / calculation                | Priority                     |
+| ----- | ------------------ | ------------------------------------ | ---------------------------- |
+| R001  | Liquidity          | 20-day ADTV                          | Mandatory                    |
+| R002  | Spread             | (Ask − Bid) / Midpoint               | Mandatory                    |
+| R003  | Market cap         | Price × shares; AMFI category        | Filter                       |
+| R004  | VWAP               | Cumulative TP × Volume / Volume      | Mandatory                    |
+| R005  | EMA alignment      | EMA9 vs EMA20                        | Mandatory                    |
+| R005B | Higher trend       | EMA50 / EMA200                       | Confirmation                 |
+| R006  | Relative volume    | Current volume / time-slot average   | Mandatory                    |
+| R007  | RSI                | Wilder RSI(14)                       | Scored                       |
+| R008  | MACD               | EMA12 − EMA26; signal EMA9           | Scored                       |
+| R009  | ORB                | First 15m high/low breakout          | Setup                        |
+| R010  | BOS                | Close beyond confirmed swing         | Confirmation                 |
+| R011  | FVG                | Three-candle imbalance               | Confirmation                 |
+| R012  | Order Block        | Opposing candle + displacement + BOS | Confirmation                 |
+| R013  | Support/resistance | PDH/PDL, pivots, swing zones         | Mandatory for trade location |
+| R014  | ATR                | Wilder ATR(14)                       | Mandatory for risk           |
+| R015  | Reward/risk        | Reward / Risk                        | Mandatory                    |
+| R016  | Daily loss         | Capital × 1.5%                       | Hard safety                  |
+| R017  | Position count     | Open positions ≤ 3                   | Hard safety                  |
+| R018  | Market regime      | NIFTY trend + VWAP + breadth         | Mandatory                    |
+| R019  | Relative strength  | Stock / NIFTY ratio                  | Scored                       |
+| R020  | CHOCH              | Structural break against prior trend | Confirmation                 |
+| R021  | Position sizing    | Risk budget / per-share risk         | Mandatory                    |
+| R022  | Profit booking     | 1.5R / 2R / 3R                       | Trade management             |
+| R023  | Trailing SL        | ATR + price structure                | Trade management             |
+
+# 19. How we should validate these formulas
+
+A mathematical formula being correct does not mean its trading threshold is profitable.
+
+I recommend testing every rule in three ways:
+
+1. Calculation validation: Compare our Python indicator outputs with TradingView or TA-Lib using identical candles and settings.
+2. Incremental strategy validation: Test whether adding a rule improves net expectancy, drawdown or execution quality.
+3. Out-of-sample validation: Confirm that the improvement survives on data not used to tune the rule.
+
+We should use:
+
+- At least 2–3 years of daily market context where available.
+- Intraday historical candles.
+- Multiple market regimes.
+- Transaction costs and realistic slippage.
+- Chronological train/validation/test splits.
+- Walk-forward testing.
+- No look-ahead bias or survivorship bias.
+
+For ORB, BOS, FVG and Order Blocks, the backtest must reproduce exactly when a signal became knowable, not when the historical chart later made it obvious.
+
+# 20. Formula configuration for our Python engine
+
+I recommend storing thresholds in configuration rather than hardcoding them.
+
+For example:
+
+```
+
+{
+  "strategyVersion": "1.0",
+  "timeframes": {
+    "execution": "1m",
+    "primary": "5m",
+    "confirmation": "15m"
+  },
+  "rules": {
+    "liquidity": {
+      "enabled": true,
+      "mandatory": true,
+      "minimumAdtvCrore": 10,
+      "lookbackDays": 20
+    },
+    "spread": {
+      "enabled": true,
+      "mandatory": true,
+      "maximumPercent": 0.10
+    },
+    "vwap": {
+      "enabled": true,
+      "mandatory": true,
+      "sessionReset": true
+    },
+    "ema": {
+      "enabled": true,
+      "mandatory": true,
+      "fast": 9,
+      "slow": 20
+    },
+    "relativeVolume": {
+      "enabled": true,
+      "mandatory": true,
+      "minimum": 1.5,
+      "lookbackSessions": 20,
+      "timeOfDayAdjusted": true
+    },
+    "rsi": {
+      "enabled": true,
+      "period": 14,
+      "bullishMin": 55,
+      "bullishMax": 70,
+      "bearishMin": 30,
+      "bearishMax": 45
+    },
+    "macd": {
+      "enabled": true,
+      "fast": 12,
+      "slow": 26,
+      "signal": 9
+    },
+    "atr": {
+      "enabled": true,
+      "period": 14
+    },
+    "openingRange": {
+      "enabled": true,
+      "durationMinutes": 15
+    },
+    "marketStructure": {
+      "enabled": true,
+      "leftBars": 2,
+      "rightBars": 2
+    },
+    "riskReward": {
+      "enabled": true,
+      "minimum": 2.0
+    }
+  },
+  "risk": {
+    "capital": 100000,
+    "riskPerTradePercent": 0.5,
+    "dailyLossPercent": 1.5,
+    "maximumOpenPositions": 3
+  }
+}
+
+```
+
+This is the initial proposed configuration. We will version every change so that we can reproduce previous trading decisions.
+
+# 21. References and formula verification
+
+I used established technical-indicator documentation and trading references to establish the mathematical definitions. For discretionary price-action concepts, the document defines our own reproducible algorithm rather than claiming a universally agreed formula.
+
+Indicator formulas
+
+- [TA-Lib – RSI](https://ta-lib.org/functions/rsi.html?utm_source=chatgpt.com)
+- [TradingView – ATR](https://www.tradingview.com/support/solutions/43000501823-average-true-range-atr/?utm_source=chatgpt.com)
+- [TradingView – EMA](https://www.tradingview.com/support/solutions/43000502589-moving-averages/?utm_source=chatgpt.com)
+- [TradingView – VWAP](https://www.tradingview.com/support/solutions/43000502018-volume-weighted-average-price-vwap/?utm_source=chatgpt.com)
+- [TA-Lib – ADX](https://ta-lib.org/functions/adx.html?utm_source=chatgpt.com)
+
+Volume and market analysis
+
+- [TradingView – Relative Volume at Time](https://www.tradingview.com/support/solutions/43000705489-relative-volume-at-time/?utm_source=chatgpt.com)
+- [Market breadth calculations](https://in.tradingview.com/support/solutions/43000794825-market-breadth-advancing-and-declining/?utm_source=chatgpt.com)
+- [Fidelity – Relative Strength Comparison](https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/relative-strength-comparison?utm_source=chatgpt.com)
+- [SEC – Bid/ask spread and execution cost](https://www.sec.gov/reports/report-practice-preferencing?utm_source=chatgpt.com)
+
+Price structure and levels
+
+- [Smart Money Concepts methodology](https://openfno.com/docs/strategies/smart-money-concepts/?utm_source=chatgpt.com)
+- [TradingView – Pivot Point formulas](https://in.tradingview.com/support/solutions/43000521824-pivot-points-standard/?utm_source=chatgpt.com)
+- [Wiley – Opening Range Breakout](https://onlinelibrary.wiley.com/doi/10.1002/9781119203933.ch11?utm_source=chatgpt.com)
+- [AMFI – Market capitalization categorisation](https://www.amfiindia.com/otherdata/categorisation-of-stocks?utm_source=chatgpt.com)
+
+# 22. My recommendation: Freeze the formulas, then test the parameters
+
+I would now separate the development into two stages.
+
+Stage A – Freeze mathematical definitions
+
+Implement the formulas as defined here. Do not keep changing the formula itself during testing unless we discover a calculation or data-quality problem.
+
+Stage B – Optimize parameters
+
+Test different values:
+
+| Parameter       | Initial  | Values to test      |
+| --------------- | -------- | ------------------- |
+| RSI period      | 14       | 9, 14, 21           |
+| RVOL threshold  | 1.5      | 1.2, 1.5, 2.0, 2.5  |
+| EMA combination | 9/20     | 8/21, 9/20, 10/20   |
+| ATR multiplier  | 1.5      | 1.0, 1.25, 1.5, 2.0 |
+| Minimum RR      | 2        | 1.5, 2, 2.5, 3      |
+| ORB duration    | 15m      | 5m, 15m, 30m        |
+| Swing detection | 2/2      | 2/2, 3/3, 5/5       |
+| OB displacement | 1 ATR    | 0.75, 1.0, 1.5      |
+| FVG size        | 0.15 ATR | 0.10, 0.15, 0.25    |
+
+We must avoid choosing parameters simply because they produced the highest historical profit. Prefer stable ranges that perform reasonably across different years and stocks.
+
+## 23. What I want to implement next
+
+My recommendation is to build a Formula Validation Engine before implementing the complete scanner.
+
+It should:
+
+1. Take historical OHLCV data for any stock.
+2. Calculate all 23 rules.
+3. Compare standardized indicators with reference implementations.
+4. Display each formula's intermediate values.
+5. Show PASS/FAIL for every rule.
+6. Generate the technical chart with OB, FVG, BOS and CHOCH markings.
+7. Export the results for backtesting.
+
+That will give us a reliable foundation before we start selecting stocks and generating paper trades.
+
+One critical engineering requirement: Every rule evaluation must record the candle timestamp, formula version, parameters, input data timestamp and result. This is how we will identify whether a bad trade came from a bad formula, bad parameter, bad market data or bad execution.
+
+My recommendation is to make this formula specification Version 1.0 and use it as the baseline for implementation, with parameter changes accepted only after documented testing.
