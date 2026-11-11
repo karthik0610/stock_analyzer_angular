@@ -1,6 +1,11 @@
 <section class="watchlist">
   <header class="section-heading">
-    <h2>Watchlist <span>({{ filteredStocks.length }})</span></h2>
+    <h2>
+      Watchlist <span>({{ filteredStocks.length }})</span>
+      @if (mockStreamActive) {
+        <small aria-label="Simulated live quote updates" title="Simulated live quote updates">&nbsp;· SIM LIVE</small>
+      }
+    </h2>
     <div class="actions">
       <button type="button" aria-label="Add Excel file to watchlist" title="Upload XLSX" (click)="openFilePicker(xlsxInput)">+</button>
       <button type="button" aria-label="Filter watchlist" [class.active]="hasActiveFilters" [attr.aria-expanded]="isFilterOpen" (click)="toggleFilter()">

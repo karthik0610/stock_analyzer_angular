@@ -51,16 +51,22 @@
       <line [attr.x1]="PLOT_LEFT" [attr.x2]="PLOT_LEFT" [attr.y1]="PLOT_TOP" [attr.y2]="VOLUME_BOTTOM" />
     </g>
 
-    @if (obVisible()) {
+    @if (obVisible() && currentObZone(); as ob) {
       <g class="order-block">
-        <rect [attr.x]="zoneX" [attr.y]="Math.min(orderBlockTop, orderBlockBottom)" [attr.width]="zoneWidth" [attr.height]="Math.max(Math.abs(orderBlockTop - orderBlockBottom), 2)" />
-        <text [attr.x]="zoneX + 5" [attr.y]="Math.min(orderBlockTop, orderBlockBottom) + 11">OB zone</text>
+        <rect [attr.x]="zoneX" [attr.y]="Math.min(priceY(ob.upper), priceY(ob.lower))" [attr.width]="zoneWidth" [attr.height]="Math.max(Math.abs(priceY(ob.upper) - priceY(ob.lower)), 2)" />
+        <text [attr.x]="zoneX + 5" [attr.y]="Math.min(priceY(ob.upper), priceY(ob.lower)) + 11">
+          {{ ob.direction }} OB · {{ ob.status }} · {{ ob.displacementAtrRatio.toFixed(2) }} ATR ·
+          {{ ob.volumeExpanded ? 'volume expanded' : 'normal volume' }}
+        </text>
       </g>
     }
-    @if (fvgVisible()) {
+    @if (fvgVisible() && currentFvgZone(); as fvg) {
       <g class="fvg-zone">
-        <rect [attr.x]="PLOT_LEFT" [attr.y]="Math.min(fairValueGapTop, fairValueGapBottom)" [attr.width]="zoneWidth * 0.68" [attr.height]="Math.max(Math.abs(fairValueGapTop - fairValueGapBottom), 2)" />
-        <text [attr.x]="PLOT_LEFT + 5" [attr.y]="Math.min(fairValueGapTop, fairValueGapBottom) + 11">FVG</text>
+        <rect [attr.x]="PLOT_LEFT" [attr.y]="Math.min(priceY(fvg.upper), priceY(fvg.lower))" [attr.width]="zoneWidth * 0.68" [attr.height]="Math.max(Math.abs(priceY(fvg.upper) - priceY(fvg.lower)), 2)" />
+        <text [attr.x]="PLOT_LEFT + 5" [attr.y]="Math.min(priceY(fvg.upper), priceY(fvg.lower)) + 11">
+          {{ fvg.direction }} FVG · {{ fvg.status }} · {{ fvg.gapAtrRatio.toFixed(2) }} ATR ·
+          {{ fvg.breakOfStructure ? 'BOS' : 'No BOS' }} · {{ fvg.qualified ? 'Qualified' : 'Watch' }}
+        </text>
       </g>
     }
 

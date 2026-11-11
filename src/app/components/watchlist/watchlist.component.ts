@@ -26,6 +26,10 @@ export class WatchlistComponent {
 
   constructor(private readonly stockData: StockDataService) {}
 
+  get mockStreamActive(): boolean {
+    return this.stockData.mockStreamActive();
+  }
+
   get filteredStocks() {
     const query = this.searchQuery.trim().toLocaleLowerCase();
 

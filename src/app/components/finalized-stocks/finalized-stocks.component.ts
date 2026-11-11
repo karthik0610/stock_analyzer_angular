@@ -1,5 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { StockChartComponent } from './stock-chart.component';
+import { StockDataService, StockQuote } from '../../services/stock-data.service';
+import {
+  analyzeFairValueGaps,
+  MarketCandle,
+  FvgZone,
+} from '../../services/trading-rules/fvg-rule';
+import {
+  analyzeOrderBlocks,
+  OrderBlockZone,
+} from '../../services/trading-rules/order-block-rule';
 
 export interface FinalizedStock {
   name: string;
@@ -18,6 +28,11 @@ export interface FinalizedStock {
   movingAverage: string;
   volume: string;
   tags: string[];
+  trend?: string;
+  macd?: string;
+  candles?: MarketCandle[];
+  fvgZone?: FvgZone | null;
+  obZone?: OrderBlockZone | null;
 }
 
 @Component({
@@ -28,11 +43,24 @@ export interface FinalizedStock {
   styleUrl: './finalized-stocks.component.scss',
 })
 export class FinalizedStocksComponent {
-  selectedStock: FinalizedStock | null = null;
+  private readonly stockData = inject(StockDataService);
+  private readonly selectedFallback = signal<FinalizedStock | null>(null);
+  private readonly selectedSymbol = signal<string | null>(null);
+  readonly selectedStock = computed(() => {
+    const symbol = this.selectedSymbol();
+    if (!symbol) {
+      return null;
+    }
+
+    const quote = this.stockData.stocks().find((stock) => stock.symbol === symbol);
+    return quote && this.stockData.hasScanned()
+      ? this.toFinalizedStock(quote)
+      : this.selectedFallback();
+  });
   previewStock: FinalizedStock | null = null;
   previewPosition = { left: '0px', top: '0px' };
 
-  readonly stocks: FinalizedStock[] = [
+  readonly initialStocks: FinalizedStock[] = [
     {
       name: 'Reliance Industries Ltd', symbol: 'RELIANCE', price: '₹1,308.00', change: '+1.30% (+16.80)', score: 92,
       support: '₹1,285.00', resistance: '₹1,340.00', entry: '₹1,300.00', stopLoss: '₹1,270.00',
@@ -59,9 +87,18 @@ export class FinalizedStocksComponent {
     },
   ];
 
+  readonly stocks = computed(() => {
+    if (!this.stockData.hasScanned()) {
+      return this.initialStocks;
+    }
+
+    return this.stockData.scannedStocks().map((quote) => this.toFinalizedStock(quote));
+  });
+
   openChart(stock: FinalizedStock): void {
     this.previewStock = null;
-    this.selectedStock = stock;
+    this.selectedFallback.set(stock);
+    this.selectedSymbol.set(stock.symbol);
   }
 
   showPreview(event: PointerEvent | FocusEvent, stock: FinalizedStock): void {
@@ -106,7 +143,8 @@ export class FinalizedStocksComponent {
   }
 
   closeChart(): void {
-    this.selectedStock = null;
+    this.selectedSymbol.set(null);
+    this.selectedFallback.set(null);
   }
 
   onCardKeydown(event: KeyboardEvent, stock: FinalizedStock): void {
@@ -114,5 +152,97 @@ export class FinalizedStocksComponent {
       event.preventDefault();
       this.openChart(stock);
     }
+  }
+
+  private toFinalizedStock(quote: StockQuote): FinalizedStock {
+    const price = quote.priceValue;
+    const priceChange = price * quote.changeValue / 100;
+    const analysis = this.stockData.ruleAnalyses()[quote.symbol];
+    const inputs = this.stockData.ruleInputsBySymbol()[quote.symbol];
+    const fvgAnalysis = analyzeFairValueGaps(quote.candles);
+    const fvgZone = fvgAnalysis.latestQualifiedBullish ?? fvgAnalysis.latestBullish;
+    const obAnalysis = analyzeOrderBlocks(quote.candles);
+    const obZone = obAnalysis.latestQualifiedBullish ?? obAnalysis.latestBullish;
+    const formatPrice = (value: number): string =>
+      `₹${value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const formatLevel = (value: number | undefined): string =>
+      value === undefined ? 'Unavailable' : formatPrice(value);
+    const changeSign = quote.changeValue >= 0 ? '+' : '';
+    const resultFor = (id: 'R004' | 'R005' | 'R006' | 'R007' | 'R008' | 'R010' | 'R020') =>
+      analysis?.results[id];
+    const statusTag = (id: 'R010' | 'R020'): string => {
+      const rule = resultFor(id);
+      return `${id} ${rule?.status ?? 'unavailable'}`;
+    };
+    const sizedEntry = analysis?.results.R021.metrics?.['entry'];
+    const sizedStop = analysis?.results.R021.metrics?.['stopLoss'];
+    const riskRewardStop = analysis?.results.R015.metrics?.['stopLoss'];
+    const plannedEntry = typeof sizedEntry === 'number'
+      ? sizedEntry
+      : inputs?.entry;
+    const plannedStop = typeof sizedStop === 'number'
+      ? sizedStop
+      : typeof riskRewardStop === 'number'
+        ? riskRewardStop
+        : inputs?.stopLoss;
+    const risk = plannedEntry !== undefined && plannedStop !== undefined
+      ? Math.abs(plannedEntry - plannedStop)
+      : undefined;
+    const targets = risk === undefined
+      ? []
+      : [1.5, 2].map((multiple) =>
+        plannedEntry !== undefined
+          ? plannedEntry + (analysis?.direction === 'bearish' ? -1 : 1) * risk * multiple
+          : undefined,
+      );
+    const support = analysis?.results.R013.metrics?.['support'];
+    const resistance = analysis?.results.R013.metrics?.['resistance'];
+    const supportValue = typeof support === 'number' ? support : undefined;
+    const resistanceValue = typeof resistance === 'number' ? resistance : undefined;
+    const rsi = resultFor('R007')?.value;
+    const emaSeparation = resultFor('R005')?.value;
+    const relativeVolume = resultFor('R006')?.value;
+
+    return {
+      name: quote.name,
+      symbol: quote.symbol,
+      price: formatPrice(price),
+      change: `${changeSign}${quote.changeValue.toFixed(2)}% (${changeSign}${formatLevel(priceChange)})`,
+      score: analysis?.score ?? 0,
+      support: formatLevel(supportValue),
+      resistance: formatLevel(resistanceValue),
+      entry: formatLevel(plannedEntry),
+      stopLoss: formatLevel(plannedStop),
+      target1: formatLevel(targets[0]),
+      target2: formatLevel(targets[1]),
+      rewardRisk: typeof analysis?.results.R015.value === 'number'
+        ? `1 : ${analysis.results.R015.value.toFixed(2)}`
+        : 'Unavailable',
+      rsi: typeof rsi === 'number' ? rsi.toFixed(1) : 'Unavailable',
+      movingAverage: typeof emaSeparation === 'number'
+        ? `${emaSeparation.toFixed(2)}%`
+        : 'Unavailable',
+      volume: typeof relativeVolume === 'number'
+        ? `${relativeVolume.toFixed(2)}× RVOL`
+        : 'Unavailable',
+      trend: resultFor('R004')?.status === 'pass' && resultFor('R005')?.status === 'pass'
+        ? 'Aligned'
+        : 'Not confirmed',
+      macd: resultFor('R008')?.status === 'pass' ? 'Aligned' : 'Not confirmed',
+      tags: [
+        `Score ${analysis?.score ?? 0}/100 · ${analysis?.classification ?? 'not scored'}`,
+        statusTag('R010'),
+        statusTag('R020'),
+        fvgZone
+          ? `Bullish FVG · ${fvgZone.status} · ${fvgZone.gapAtrRatio.toFixed(2)} ATR`
+          : 'Bullish FVG · not found',
+        obZone
+          ? `Bullish OB · ${obZone.status} · ${obZone.displacementAtrRatio.toFixed(2)} ATR`
+          : 'Bullish OB · not found',
+      ],
+      candles: quote.candles,
+      fvgZone,
+      obZone,
+    };
   }
 }

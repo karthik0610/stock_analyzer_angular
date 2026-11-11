@@ -1,4 +1,6 @@
 import { Component, computed, input, signal } from '@angular/core';
+import { FvgZone, MarketCandle } from '../../services/trading-rules/fvg-rule';
+import { OrderBlockZone } from '../../services/trading-rules/order-block-rule';
 
 export interface ChartStock {
   name: string;
@@ -9,22 +11,15 @@ export interface ChartStock {
   stopLoss: string;
   target1: string;
   target2: string;
+  candles?: MarketCandle[];
+  fvgZone?: FvgZone | null;
+  obZone?: OrderBlockZone | null;
 }
 
 type Timeframe = '1m' | '5m' | '15m';
 type Marking = 'ob' | 'fvg' | 'entry' | 'stopLoss' | 'targets';
 
-interface Candle {
-  index: number;
-  time: string;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
-}
-
-interface RenderedCandle extends Candle {
+interface RenderedCandle extends MarketCandle {
   x: number;
   openY: number;
   highY: number;
@@ -72,13 +67,20 @@ export class StockChartComponent {
   private dragState: { pointerId: number; lastX: number } | null = null;
 
   readonly currentPrice = computed(() => this.parsePrice(this.stock().price));
-  readonly chartCandles = computed(() =>
-    this.generateCandles(
+  readonly chartCandles = computed(() => {
+    const stockCandles = this.stock().candles;
+    if (this.timeframe() === '5m' && stockCandles?.length) {
+      return stockCandles;
+    }
+
+    return this.generateCandles(
       this.stock().symbol,
       this.currentPrice(),
       this.compact() ? '5m' : this.timeframe(),
-    ),
-  );
+    );
+  });
+  readonly currentFvgZone = computed(() => this.stock().fvgZone ?? null);
+  readonly currentObZone = computed(() => this.stock().obZone ?? null);
   readonly visibleCandles = computed(() => {
     const candles = this.chartCandles();
     const count = this.compact() ? 5 : this.candleWindow();
@@ -98,6 +100,14 @@ export class StockChartComponent {
       this.parsePrice(this.stock().target2),
       this.parsePrice(this.stock().support),
     );
+    const fvgZone = this.currentFvgZone();
+    if (fvgZone) {
+      prices.push(fvgZone.lower, fvgZone.upper);
+    }
+    const obZone = this.currentObZone();
+    if (obZone) {
+      prices.push(obZone.lower, obZone.upper);
+    }
     const low = Math.min(...prices);
     const high = Math.max(...prices);
     const padding = Math.max((high - low) * 0.08, this.currentPrice() * 0.001);
@@ -160,7 +170,7 @@ export class StockChartComponent {
 
   setTimeframe(timeframe: Timeframe): void {
     this.timeframe.set(timeframe);
-    this.endIndex.set(CANDLE_COUNT);
+    this.endIndex.set(this.chartCandles().length);
     this.candleWindow.set(36);
     this.clearInspection();
   }
@@ -183,9 +193,9 @@ export class StockChartComponent {
 
     event.preventDefault();
     const current = this.candleWindow();
-    const next = Math.min(80, Math.max(10, current + (event.deltaY > 0 ? 6 : -6)));
+    const next = Math.min(this.chartCandles().length, Math.max(10, current + (event.deltaY > 0 ? 6 : -6)));
     this.candleWindow.set(next);
-    this.endIndex.set(Math.min(CANDLE_COUNT, Math.max(next, this.endIndex())));
+    this.endIndex.set(Math.min(this.chartCandles().length, Math.max(next, this.endIndex())));
   }
 
   onPointerDown(event: PointerEvent): void {
@@ -214,7 +224,7 @@ export class StockChartComponent {
 
       if (steps !== 0) {
         const nextEnd = Math.min(
-          CANDLE_COUNT,
+          this.chartCandles().length,
           Math.max(this.candleWindow(), this.endIndex() - steps),
         );
         this.endIndex.set(nextEnd);
@@ -286,27 +296,11 @@ export class StockChartComponent {
     return PLOT_RIGHT - this.zoneX;
   }
 
-  get orderBlockTop(): number {
-    return this.priceY(this.parsePrice(this.stock().entry));
-  }
-
-  get orderBlockBottom(): number {
-    return this.priceY(this.parsePrice(this.stock().support));
-  }
-
-  get fairValueGapTop(): number {
-    return this.priceY(this.currentPrice() * 1.004);
-  }
-
-  get fairValueGapBottom(): number {
-    return this.priceY(this.currentPrice() * 0.998);
-  }
-
   private parsePrice(price: string): number {
     return Number(price.replace(/[^\d.-]/g, '')) || 0;
   }
 
-  private generateCandles(symbol: string, currentPrice: number, timeframe: Timeframe): Candle[] {
+  private generateCandles(symbol: string, currentPrice: number, timeframe: Timeframe): MarketCandle[] {
     const seed = [...symbol].reduce(
       (value, character) => (value * 31 + character.charCodeAt(0)) >>> 0,
       7,
@@ -336,6 +330,7 @@ export class StockChartComponent {
 
       return {
         index,
+        timestamp: index,
         time: `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`,
         open,
         high,

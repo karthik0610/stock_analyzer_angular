@@ -1,22 +1,52 @@
 <section class="rules">
   <header class="rules-heading">
     <h2><span class="target">◎</span> Trading Rules</h2>
-    <p>Enable / Disable rules and run scanner to get final stocks.</p>
+    <p style="padding-bottom: 2px;">Unavailable inputs never count as a pass. Hard-safety rules cannot be disabled.</p>
   </header>
 
   <div class="rule-list">
-    @for (rule of rules; track rule.name) {
-      <label class="rule">
+    @for (rule of rules(); track rule.id) {
+      <label class="rule" [class.rule-disabled]="!rule.toggleable">
         <span class="rule-mark">{{ rule.enabled ? '◴' : '○' }}</span>
-        <span class="rule-copy"><strong>{{ rule.name }}</strong>@if (rule.detail) { <small>{{ rule.detail }}</small> }</span>
-        <input type="checkbox" [checked]="rule.enabled" [attr.aria-label]="rule.name" />
+        <span class="rule-copy">
+          <strong>{{ rule.id }} · {{ rule.name }} <em>{{ rule.priority }}</em></strong>
+          <small>{{ rule.detail }}</small>
+          <small class="rule-status">{{ rule.statusSummary }}</small>
+          @if (rule.statusDetail) {
+            <small class="rule-reason">{{ rule.statusDetail }}</small>
+          }
+        </span>
+        <input
+          type="checkbox"
+          [checked]="rule.enabled"
+          [disabled]="!rule.toggleable"
+          [attr.aria-label]="rule.name"
+          (change)="toggleRule(rule.id, $event)"
+        />
       </label>
     }
   </div>
 
   <footer>
-    <button class="run-button" (click)="runScanner()"><span>▷</span> Run Scanner</button>
-    <p class="active"><span>✓</span> Active Rules: 9 / 10</p>
-    <p class="last-run"><span>◷</span> {{ hasRun ? 'Scan complete: 4 stocks found' : 'Last Run: 04 Nov 2026, 01:05 PM' }}</p>
+    <button class="run-button" type="button" [class.scanning]="isRunning" [attr.aria-pressed]="isRunning" (click)="toggleScanner()">
+      <span>{{ isRunning ? '■' : '▷' }}</span> {{ isRunning ? 'Stop Scanner' : 'Run Scanner' }}
+    </button>
+    <p class="active">
+      <span>{{ isRunning ? '●' : '✓' }}</span>
+      {{ isRunning ? 'Scanner running' : 'Active Rules' }}: {{ activeRuleCount }} / {{ rules().length }}
+    </p>
+    <p class="last-run">
+      <span>◷</span>
+      @if (lastScanAt; as scanTime) {
+        {{ isRunning ? 'Scanning' : 'Last scan' }}: {{ scannedCount }} finalized · {{ scanTime | date:'shortTime' }}
+      } @else {
+        Scanner ready · not run yet
+      }
+    </p>
+    @if (lastScanAt && blockedCount > 0) {
+      <p class="unavailable-note">
+        {{ blockedCount }} positive movers blocked by unavailable mandatory inputs.
+      </p>
+    }
   </footer>
 </section>

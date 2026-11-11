@@ -1,11 +1,11 @@
 <section class="finalized">
   <header class="finalized-heading">
-    <h2><span class="layers">▱</span> Finalized Stocks <span class="count">({{ stocks.length }})</span></h2>
+    <h2><span class="layers">▱</span> Finalized Stocks <span class="count">({{ stocks().length }})</span></h2>
     <button>Sort: Score <span>⌄</span></button>
   </header>
 
   <div class="cards">
-    @for (stock of stocks; track stock.symbol) {
+    @for (stock of stocks(); track stock.symbol) {
       <article
         class="stock-card"
         tabindex="0"
@@ -40,10 +40,10 @@
           <div><span>Target 1</span><strong>{{ stock.target1 }}</strong></div>
           <div><span>Target 2</span><strong>{{ stock.target2 }}</strong></div>
           <div><span>R:R</span><strong>{{ stock.rewardRisk }}</strong></div>
-          <div><span>Trend</span><strong class="green">Bullish</strong></div>
+          <div><span>Trend</span><strong [class.green]="stock.trend === 'Aligned'">{{ stock.trend ?? 'Bullish' }}</strong></div>
           <div><span>RSI</span><strong>{{ stock.rsi }}</strong></div>
-          <div><span>MACD</span><strong class="green">Bullish</strong></div>
-          <div><span>200 SMA</span><strong>{{ stock.movingAverage }}</strong></div>
+          <div><span>MACD</span><strong [class.green]="stock.macd === 'Aligned'">{{ stock.macd ?? 'Bullish' }}</strong></div>
+          <div><span>EMA 9/20</span><strong>{{ stock.movingAverage }}</strong></div>
           <div><span>Volume</span><strong class="green">{{ stock.volume }}</strong></div>
         </div>
 
@@ -73,7 +73,7 @@
     </aside>
   }
 
-  @if (selectedStock; as stock) {
+  @if (selectedStock(); as stock) {
     <div class="chart-backdrop" (click)="closeChart()">
       <section
         class="chart-dialog"
