@@ -1,0 +1,121 @@
+2. 📊 Fundamental / Financial Health
+Profitability
+* Revenue growth — Is it growing every year? (look at 3–5 years)
+* Net Profit growth — Is profit growing along with revenue?
+* Net Profit Margin (NPM) — How much profit per ₹100 of sales?
+* Operating Profit Margin (OPM / EBITDA Margin) — Core business profitability
+* EPS (Earnings Per Share) — Profit per share; should be growing
+* ROE (Return on Equity) — How much profit on shareholders' money? >15% is healthy
+* ROCE (Return on Capital Employed) — Overall capital efficiency; >15% is good
+* ROA (Return on Assets) — Especially important for banks/NBFCs
+Valuation
+* PE Ratio (Price-to-Earnings) — Compare with industry PE and stock's own 5-year average; very high PE = costly
+* PB Ratio (Price-to-Book) — Especially for banks and asset-heavy companies
+* EV/EBITDA — Better than PE for comparing companies with different debt levels
+* PEG Ratio — PE divided by earnings growth rate; <1 = undervalued, >2 = costly
+* Dividend Yield — Income you get as % of stock price; higher is better for value investors
+Debt & Liquidity
+* Debt-to-Equity (D/E) ratio — Lower is safer; >2 is high risk
+* Interest Coverage Ratio — Profit ÷ Interest paid; should be >3x
+* Current Ratio — Short-term assets vs short-term liabilities; >1.5 is comfortable
+* Free Cash Flow (FCF) — Cash left after all expenses and investments; must be positive and growing
+Cash Flow Quality
+* Operating Cash Flow — Should be positive and close to net profit
+* FCF vs Net Profit — If FCF is much lower than profit, earnings quality is poor
+* Cash Flow from Operations > 50% of Revenue — Sign of a healthy cash-generating business
+
+3. 📈 Technical Analysis
+* Price vs 200-Day Moving Average (200 DMA) — Above 200 DMA = long-term uptrend; below = weakness
+* Price vs 50 DMA — Short-to-medium trend indicator
+* RSI (Relative Strength Index) — Below 30 = oversold (may be a buying opportunity); above 70 = overbought
+* MACD (Moving Average Convergence Divergence)— Bullish crossover = positive momentum signal
+* Support & Resistance levels — Buying near strong support reduces downside risk
+* 52-Week High / Low — Where is the stock relative to its yearly range?
+* Volume — Price rise with high volume = strong signal; price rise with low volume = weak signal
+* Bollinger Bands — Useful to identify breakout or consolidation zones
+* Supertrend Indicator — Clear buy/sell signal based on ATR (Average True Range)
+
+4. 👥 Shareholding Pattern
+* Promoter Holding % — Higher is better; >50% shows confidence; declining promoter stake is a red flag 🚩
+* Promoter Pledge % — If promoters have pledged their shares, it is risky; look for 0% pledge
+* FII (Foreign Institutional Investor) Holding — Rising FII = positive signal
+* DII (Domestic Institutional Investor) Holding — MFs, LIC buying = confidence signal
+* Retail Holding % — Very high retail = low institutional interest; check why
+* Quarter-on-Quarter change — Are big investors buying more or selling? (QoQ trend matters more than the absolute number)
+
+5. 🏦 Balance Sheet Strength
+* Total Debt vs Cash — Net Debt = Total Debt − Cash; negative net debt = debt-free company
+* Receivables Days — How many days to collect payment? Rising = red flag
+* Inventory Days — Rising inventory = slow-moving products; sector-dependent
+* Working Capital — Is it efficient or stretched?
+* Goodwill / Intangibles — Very high goodwill means the company paid a lot for acquisitions; can be risky
+* Contingent Liabilities — Off-balance-sheet risks; check notes to accounts
+
+6. 📰 Management & Governance
+* Promoter track record — History of creating shareholder value?
+* Salary vs company size — Are promoters paying themselves very high salaries relative to profit?
+* Related-party transactions — Are they doing business within the family group unfairly?
+* Auditor quality & opinion — Qualified audit opinion = serious red flag 🚩
+* Accounting quality — Consistent accounting policies? Any restatements?
+* Corporate governance rating — Check for past fraud, SEBI orders, stock exchange penalties
+* Management commentary — Concall transcripts, annual report letter to shareholders; are they honest about challenges?
+
+7. 📅 Corporate Events & News
+* Upcoming results date — Avoid buying just before quarterly results if uncertain
+* Dividend history — Consistent dividends = stable earnings
+* Stock splits & bonuses — Often signals management confidence
+* Mergers & Acquisitions — Can be value-creating or value-destroying; study carefully
+* Rights issues / QIP / FPO — Equity dilution reduces your shareholding %
+* SEBI/regulatory actions — Any ongoing investigation?
+* Recent news — Sector tailwinds or headwinds? Policy changes? Export bans?
+
+8. 🌍 Macro & Sector Factors
+* Interest rate environment — Rising rates hurt debt-heavy companies and NBFCs; benefit banks partially
+* Inflation — Affects input costs; check if the company can pass on price hikes (pricing power)
+* Currency risk — Exporters benefit from weak rupee; importers suffer
+* Government policy — PLI schemes, import duties, sector regulations
+* Sector cycle — Is the sector in an early, mid, or late cycle?
+* Global factors — Oil prices, US recession risk, China demand (especially for metals, chemicals)
+* FII flows — Overall market sentiment from foreign investors
+
+9. 🎯 Valuation vs Growth (Entry Price)
+* Intrinsic Value vs Market Price — Use DCF (Discounted Cash Flow) or peer comparison
+* Margin of Safety — Buy below intrinsic value to protect against being wrong
+* PEG < 1 — A stock growing at 30% with PE of 25 is better than a stock growing at 10% with PE of 25
+* Historical PE band — Is the stock cheap or costly relative to its own history?
+* Sector PE comparison — Stock PE vs industry average PE
+
+10. ⚖️ Risk Assessment
+* Concentration risk — Does the company depend on 1–2 clients or products for most revenue?
+* Regulatory risk — Is the business model at risk due to policy change? (e.g., online gaming, fintech)
+* Promoter/key-person risk — Does everything depend on one person?
+* Commodity price risk — Steel, oil, agro-based companies are highly sensitive
+* Cyclicality — Some sectors (real estate, metals, auto) have boom-bust cycles
+* Litigation risk — Pending legal cases can be serious; check annual report disclosures
+* ESG risks — Environmental, Social, Governance factors; increasingly important for institutional flows
+
+11. 💼 Portfolio & Personal Fit
+* Does it fit your goal? — Growth, income (dividend), or stability?
+* Does it fit your time horizon? — Short-term trade or long-term hold?
+* Does it fit your risk appetite? — Small-cap is higher risk than large-cap
+* Diversification — Are you already overweight in this sector?
+* Position sizing — Never put all money in one stock; 5–10% per stock is a healthy limit
+* Tax implications — STCG (Short-Term Capital Gains, held ≤12 months) taxed at 20%; LTCG (Long-Term Capital Gains, held >12 months) at 12.5% above ₹1.25 lakh
+
+12. 📑 Key Documents to Read
+Document	What to Look For
+Annual Report	Director's letter, risk factors, notes to accounts
+Concall Transcript	Management honesty, guidance, Q&A with analysts
+Quarterly Results	Revenue/profit trend, margins QoQ and YoY
+Credit Rating Report	For debt-heavy companies — rating upgrades/downgrades
+DRHP (for new listings)	Business model, risk factors, use of funds
+🚩 Key Red Flags — Avoid If You See These
+* Promoter pledging shares heavily or selling consistently
+* Auditor resignation or qualified audit opinion
+* Revenue growing but profits falling (margin destruction)
+* Very high debt with low interest coverage
+* Frequent equity dilution (QIPs, rights issues repeatedly)
+* Accounting irregularities (cash flow much lower than reported profit)
+* Related-party transactions that seem unusually large
+* SEBI investigation or exchange penalties
+* Management giving aggressive guidance but missing repeatedly
