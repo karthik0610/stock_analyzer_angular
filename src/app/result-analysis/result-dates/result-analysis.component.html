@@ -1,0 +1,57 @@
+<main class="result-analysis" aria-label="Result Analysis">
+  <aside class="results-list" aria-label="Stock results by day">
+    <header class="list-heading">
+      <h1>Stock Results</h1>
+    </header>
+
+    <div class="day-groups">
+      @for (day of resultDays; track day.label) {
+        <section class="day-group" [attr.aria-label]="day.label + ' results'">
+          <h2>{{ day.label }}</h2>
+          @for (stock of day.stocks; track stock.symbol) {
+            <button
+              class="stock-result"
+              type="button"
+              [class.selected]="selectedStock.symbol === stock.symbol"
+              [attr.aria-pressed]="selectedStock.symbol === stock.symbol"
+              [attr.aria-label]="stock.name + ', ' + day.label + ', result ' + stock.result"
+              (click)="selectStock(stock)"
+            >
+              <div class="stock-name">
+                <strong>{{ stock.name }}</strong>
+                <span>{{ stock.symbol }}</span>
+              </div>
+              <div class="stock-change" [class.loss]="!stock.positive">
+                <strong>{{ stock.result }}</strong>
+                <span>{{ stock.change }}</span>
+              </div>
+            </button>
+          }
+        </section>
+      }
+    </div>
+  </aside>
+
+  <section class="analysis-grid" aria-label="Company analysis categories" [attr.aria-busy]="isLoading">
+    @for (category of analysisCategories; track category.title) {
+      <app-analysis-tile
+        [title]="category.title"
+        [companyName]="selectedStock.name"
+        [summary]="category.summary ?? ''"
+        [points]="category.points"
+        [warnings]="category.warnings ?? []"
+      />
+    }
+    <app-final-call-tile
+      [companyName]="selectedStock.name"
+      [stockSymbol]="selectedStock.symbol"
+    />
+    @if (isLoading) {
+      <div class="loading-overlay" role="status" aria-live="polite">
+        <span class="loading-spinner" aria-hidden="true"></span>
+        <strong>Loading {{ selectedStock.name }} analysis</strong>
+        <span>Updating sample metrics…</span>
+      </div>
+    }
+  </section>
+</main>

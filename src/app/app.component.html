@@ -1,9 +1,13 @@
-<app-header />
+<app-header [activeScreen]="activeScreen" (activeScreenChange)="activeScreen = $event" />
 
-<main class="dashboard" aria-label="Stock Analyzer dashboard">
-  <app-watchlist class="dashboard-panel" />
-  <app-top-stocks class="dashboard-panel" />
-  <app-trading-rules class="dashboard-panel" />
-  <app-finalized-stocks class="dashboard-panel" />
-  <app-stock-analysis class="dashboard-panel" />
-</main>
+@if (activeScreen === 'auto-trade') {
+  <main class="dashboard" aria-label="Stock Analyzer dashboard">
+    <app-watchlist class="dashboard-panel" />
+    <app-top-stocks class="dashboard-panel" />
+    <app-trading-rules class="dashboard-panel" />
+    <app-finalized-stocks class="dashboard-panel" />
+    <app-stock-analysis class="dashboard-panel" />
+  </main>
+} @else {
+  <app-result-analysis />
+}

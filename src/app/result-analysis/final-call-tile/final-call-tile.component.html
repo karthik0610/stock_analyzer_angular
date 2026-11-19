@@ -1,0 +1,208 @@
+<article class="final-call-tile" aria-label="Final call">
+  <header>
+    <div class="final-call-title">
+      <h2>Final Call</h2>
+      <span class="company-label">{{ companyName }} · DEMO</span>
+    </div>
+    <div class="header-meta">
+      <span class="overall-score-badge" aria-label="Overall score and classification">
+        <strong>{{ evaluation.overallScore }}/100</strong>
+        <span>{{ evaluation.classification }}</span>
+      </span>
+      <span class="demo-label">Illustrative analysis</span>
+    </div>
+  </header>
+
+  <p class="disclaimer">{{ summary }}</p>
+
+  <nav class="horizon-tabs" aria-label="Select analysis mode">
+    @for (horizon of horizons; track horizon.id) {
+      <button
+        type="button"
+        [class.active]="selectedHorizon === horizon.id"
+        [attr.aria-pressed]="selectedHorizon === horizon.id"
+        (click)="selectHorizon(horizon.id)"
+      >
+        <strong>{{ horizon.label }}</strong>
+        <span>{{ horizon.timeframe }}</span>
+      </button>
+    }
+  </nav>
+
+  <p class="mode-basis">{{ selectedHorizonDetails.entryBasis }}</p>
+
+  <section class="setup-selector" aria-label="Trade setup selection">
+    <h3>Select Trade Setup</h3>
+    <nav class="setup-tabs" aria-label="Choose entry setup">
+      @for (setup of setups; track setup.id) {
+        <button
+          type="button"
+          [class.active]="selectedSetup === setup.id"
+          [attr.aria-pressed]="selectedSetup === setup.id"
+          (click)="selectSetup(setup.id)"
+        >
+          {{ setup.label }}
+        </button>
+      }
+    </nav>
+    <div class="setup-details">
+      <p>{{ selectedSetupDetails.description }}</p>
+      <p><strong>Formula:</strong> {{ selectedSetupDetails.formula }}</p>
+      <p><strong>Entry trigger:</strong> {{ selectedSetupDetails.entryTrigger }}</p>
+    </div>
+  </section>
+
+  <section class="score-overview" aria-label="Stock score and trade decision">
+    <div class="summary-card score-card">
+      <span>Overall Score</span>
+      <div class="score-value">
+        <strong>{{ evaluation.overallScore }}<small>/100</small></strong>
+        <span class="classification">{{ evaluation.classification }}</span>
+      </div>
+      <p class="quality-assessment">{{ evaluation.qualityAssessment }}</p>
+      <span>Weighted for {{ selectedHorizonDetails.label }}</span>
+    </div>
+    <div
+      class="summary-card decision-card"
+      [class.blocked]="evaluation.decision === 'WAIT' || evaluation.decision === 'AVOID'"
+      [class.avoiding]="evaluation.decision === 'AVOID'"
+    >
+      <span>Rule-Based Decision</span>
+      <strong>{{ evaluation.decision }}</strong>
+      <span>{{ evaluation.decisionSummary }}</span>
+    </div>
+  </section>
+
+  <section class="scoring-engines" aria-label="Scoring engine breakdown">
+    <h3>Six Scoring Engines</h3>
+    <div class="score-rows">
+      @for (row of evaluation.breakdown; track row.category) {
+        <div class="score-row">
+          <strong class="category-name">{{ row.category }}</strong>
+          <span class="score-metric">
+            <small>Score</small>
+            <strong>{{ row.score }} / 100</strong>
+          </span>
+          <span class="score-metric">
+            <small>Weight</small>
+            <strong>{{ row.weight }}%</strong>
+          </span>
+          <span class="score-metric">
+            <small>Contribution</small>
+            <strong>{{ row.contribution }}</strong>
+          </span>
+          <span class="evidence-status" [class.verified]="row.evidenceVerified">
+            {{ row.evidenceVerified ? 'Verified' : 'Unverified' }}
+          </span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="trade-checks" aria-label="Trade rule overrides">
+    <div class="section-heading">
+      <h3>Rule-Based Trade Checks</h3>
+      <span>Candidate action: {{ evaluation.candidateAction }}</span>
+    </div>
+    <div class="setup-conditions" aria-label="Selected setup conditions">
+      @for (condition of evaluation.tradePlan.conditions; track condition.label) {
+        <div class="setup-condition" [class.met]="condition.met">
+          <strong>{{ condition.met ? 'MET' : 'WAIT' }}</strong>
+          <span>{{ condition.label }}</span>
+        </div>
+      }
+    </div>
+    @if (evaluation.blockingReasons.length > 0) {
+      <ul>
+        @for (reason of evaluation.blockingReasons; track reason) {
+          <li>{{ reason }}</li>
+        }
+      </ul>
+    } @else {
+      <p>No blocking override is active. Entry conditions still need confirmation.</p>
+    }
+    <p class="threshold-note">Demo thresholds: risk/reward to Target 1 ≥ 1:1.5; entry extension ≤ 5%.</p>
+  </section>
+
+  <section class="trade-plan" aria-label="Illustrative trade plan">
+    <h3>Trade Plan · {{ selectedSetupDetails.label }} · Demo</h3>
+    <div class="plan-grid">
+      <div>
+        <span>Is this stock worth buying?</span>
+        <strong>{{ evaluation.qualityAssessment }}</strong>
+      </div>
+      <div>
+        <span>Suitable timeframe</span>
+        <strong>{{ selectedHorizonDetails.label }} · {{ selectedHorizonDetails.timeframe }}</strong>
+      </div>
+      <div>
+        <span>Action now</span>
+        <strong>{{ evaluation.decision }}</strong>
+      </div>
+      <div>
+        <span>Entry price / zone</span>
+        <strong>{{ evaluation.tradePlan.entryZone }}</strong>
+      </div>
+      <div>
+        <span>Stop loss</span>
+        <strong>{{ evaluation.tradePlan.stopLoss }}</strong>
+      </div>
+      <div>
+        <span>Target 1</span>
+        <strong>{{ evaluation.tradePlan.targetOne }}</strong>
+      </div>
+      <div>
+        <span>Target 2</span>
+        <strong>{{ evaluation.tradePlan.targetTwo }}</strong>
+      </div>
+      <div>
+        <span>Risk / reward ratio</span>
+        <strong>{{ evaluation.tradePlan.riskRewardText }}</strong>
+      </div>
+      <div>
+        <span>Position size</span>
+        <strong>{{ evaluation.tradePlan.positionSizing.shares }} shares · {{ evaluation.tradePlan.positionSizing.capitalRequired }}</strong>
+      </div>
+      <div>
+        <span>Risk budget · risk at stop</span>
+        <strong>{{ evaluation.tradePlan.positionSizing.riskBudget }} · {{ evaluation.tradePlan.positionSizing.riskAtStop }}</strong>
+      </div>
+      <div>
+        <span>Risk per share · selected stop method</span>
+        <strong>{{ evaluation.tradePlan.positionSizing.riskPerShare }} · {{ evaluation.tradePlan.selectedStopMethod }}</strong>
+      </div>
+      <div>
+        <span>Portfolio allocation</span>
+        <strong>{{ evaluation.tradePlan.positionSizing.allocationPercentage }}</strong>
+      </div>
+      <div>
+        <span>Position-size limit</span>
+        <strong>{{ evaluation.tradePlan.positionSizing.limitingFactors.join(', ') }}</strong>
+      </div>
+      <div>
+        <span>Conditions that invalidate the trade</span>
+        <strong>{{ evaluation.tradePlan.invalidationConditions }}</strong>
+      </div>
+      <div>
+        <span>Exit if there is no follow-through</span>
+        <strong>{{ evaluation.tradePlan.timeBasedExit }}</strong>
+      </div>
+    </div>
+    <div class="stop-candidates">
+      <h4>Stop-loss candidates · thesis and structure take priority</h4>
+      @for (candidate of evaluation.tradePlan.stopLossCandidates; track candidate.method) {
+        <div class="stop-candidate" [class.selected]="candidate.selected">
+          <strong>{{ candidate.method }} · {{ candidate.price }}{{ candidate.selected ? ' · Selected' : '' }}</strong>
+          <span>{{ candidate.reason }}</span>
+        </div>
+      }
+      @if (evaluation.tradePlan.stopLossCandidates.length === 0) {
+        <p>No valid stop-loss candidate is below the planned entry.</p>
+      }
+    </div>
+  </section>
+
+  <p class="evidence-note">
+    <strong>Section 12 · Key Documents</strong> is the evidence layer for these engines. The current demo inputs are unverified, so the engine blocks entry until critical data and supporting documents are current.
+  </p>
+</article>

@@ -35,6 +35,30 @@
   stroke-width: 2.4;
 }
 
+.screen-picker select {
+  width: 145px;
+  height: 39px;
+  padding: 0 10px;
+  border: 1px solid #344a70;
+  border-radius: 9px;
+  background: #0c172d;
+  color: #e8effc;
+  font: inherit;
+  font-size: 13px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .search {
   display: flex;
   flex: 1 1 230px;

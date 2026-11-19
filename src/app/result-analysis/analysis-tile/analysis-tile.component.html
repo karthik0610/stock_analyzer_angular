@@ -1,0 +1,45 @@
+<article class="analysis-tile" [attr.aria-label]="title">
+  <header>
+    <h2>{{ title }}</h2>
+    <span class="sample-label">{{ companyName }} · DEMO</span>
+  </header>
+  @if (summary) {
+    <p class="tile-summary">{{ summary }}</p>
+  }
+  <div class="tile-content" tabindex="0" [attr.aria-label]="title + ' details'">
+    <ul class="points">
+      @for (point of points; track point.label) {
+        <li>
+          <strong>{{ point.label }}</strong>
+          <span
+            class="value"
+            [class.positive]="point.status === 'positive'"
+            [class.caution]="point.status === 'caution'"
+            [class.negative]="point.status === 'negative'"
+          >{{ point.value }}</span>
+          @if (point.detail) {
+            <span class="detail">{{ point.detail }}</span>
+          }
+        </li>
+      }
+    </ul>
+
+    @if (warnings.length > 0) {
+      <section class="red-flags" aria-label="Key red flags">
+        <h3>Key Red Flags</h3>
+        <ul>
+          @for (warning of warnings; track warning) {
+            <li>
+              <strong>{{ warning.label }}</strong>
+              <span
+                [class.positive]="warning.status === 'positive'"
+                [class.caution]="warning.status === 'caution'"
+                [class.negative]="warning.status === 'negative'"
+              >{{ warning.value }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  </div>
+</article>

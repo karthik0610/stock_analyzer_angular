@@ -7,6 +7,14 @@
     <span>Stock Analyzer</span>
   </div>
 
+  <label class="screen-picker">
+    <span class="visually-hidden">Select screen</span>
+    <select [value]="activeScreen" (change)="onScreenChange($event)" aria-label="Select screen">
+      <option value="auto-trade">Auto Trade</option>
+      <option value="result-analysis">Result Analysis</option>
+    </select>
+  </label>
+
   <label class="search">
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 5 5" /></svg>
     <input type="search" placeholder="Search stocks (Name / Symbol / BSE / NSE)" aria-label="Search stocks" />

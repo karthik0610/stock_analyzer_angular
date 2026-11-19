@@ -1,0 +1,4 @@
+source ~/.zshrc
+node -v
+npm -v
+npm start

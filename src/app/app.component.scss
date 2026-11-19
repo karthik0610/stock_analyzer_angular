@@ -4,7 +4,8 @@
   width: 100%;
   min-width: 760px;
   height: 100dvh;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: #030918;
   color: #e7edf9;
 }
