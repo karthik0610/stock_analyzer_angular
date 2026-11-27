@@ -3,7 +3,16 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideHttpClient } from '@angular/common/http';
+import { FinEdgeApiService } from './finedgeapi/finedgeapi.service';
+import { FUNDAMENTAL_DATA_PROVIDER } from './finedgeapi/fundamental-data-provider';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideClientHydration(withEventReplay())]
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes),
+    provideClientHydration(withEventReplay()),
+    provideHttpClient(),
+    { provide: FUNDAMENTAL_DATA_PROVIDER, useExisting: FinEdgeApiService },
+  ],
 };

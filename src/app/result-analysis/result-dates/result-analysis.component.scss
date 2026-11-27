@@ -30,6 +30,7 @@
 .results-list {
   display: flex;
   min-width: 0;
+  max-height: calc(100dvh - 61px);
   flex-direction: column;
   border-right: 1px solid #243450;
   background: #050c1b;
@@ -50,17 +51,43 @@
   font-weight: 700;
 }
 
-.day-groups {
-  overflow: visible;
+.stock-search-container {
+  padding: 8px 10px;
+  border-bottom: 1px solid #1c2a43;
 }
 
-.day-group h2 {
-  margin: 0;
-  padding: 10px 10px 6px;
+.stock-search {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 7px 8px;
+  border: 1px solid #243450;
+  border-radius: 4px;
+  background: #030918;
+  color: #e7edf9;
+  font: inherit;
+  font-size: 11px;
+}
+
+.stock-search::placeholder {
+  color: #91a1bb;
+}
+
+.stock-search:focus-visible {
+  border-color: #56a8ff;
+  outline: 2px solid #56a8ff;
+  outline-offset: 1px;
+}
+
+.stock-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.stock-list-status {
+  margin: 12px 10px;
   color: #91a1bb;
   font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
 }
 
 .stock-result {
@@ -68,7 +95,7 @@
   min-width: 0;
   width: 100%;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 6px;
   padding: 10px;
   border: 0;
@@ -95,52 +122,70 @@
   outline-offset: -2px;
 }
 
-.stock-name,
-.stock-change {
+.stock-name {
   display: grid;
   min-width: 0;
   gap: 4px;
-}
-
-.stock-name strong,
-.stock-name span,
-.stock-change strong,
-.stock-change span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .stock-name strong {
   color: #dce5f5;
   font-size: 11px;
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.stock-name span {
+.stock-symbol-row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 5px;
+}
+
+.stock-symbol {
+  min-width: 0;
+  overflow: hidden;
   color: #91a1bb;
   font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.stock-change {
+.market-cap-label {
+  display: inline-flex;
+  min-width: 16px;
+  height: 16px;
   flex: 0 0 auto;
-  text-align: right;
-}
-
-.stock-change strong,
-.stock-change span {
-  color: #00c77a;
-  font-size: 10px;
-  font-weight: 600;
-}
-
-.stock-change span {
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  border-radius: 3px;
   font-size: 9px;
+  font-weight: 700;
 }
 
-.stock-change.loss strong,
-.stock-change.loss span {
-  color: #f06272;
+.market-cap-label.large-cap {
+  background: #facc15;
+  color: #1f2937;
+}
+
+.market-cap-label.mid-cap {
+  background: #22c55e;
+  color: #052e16;
+}
+
+.market-cap-label.small-cap {
+  background: #ef4444;
+  color: #fff;
+}
+
+.final-call-unavailable {
+  grid-column: 1 / -1;
+  margin: 12px;
+  color: #91a1bb;
+  font-size: 13px;
 }
 
 .loading-overlay {

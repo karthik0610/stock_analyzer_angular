@@ -1,0 +1,283 @@
+:host {
+  display: block;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  background: #030918;
+  color: #e7edf9;
+}
+
+.fundamental-analysis {
+  display: grid;
+  min-height: 100%;
+  align-content: start;
+  gap: 16px;
+  padding: 22px;
+}
+
+.page-header,
+.query-panel,
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.page-header h1 {
+  margin: 4px 0;
+  font-size: 24px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #7f93b5;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.intro {
+  margin: 6px 0 0;
+  color: #9eacc4;
+  font-size: 13px;
+}
+
+.docs-link {
+  flex: 0 0 auto;
+  color: #80baff;
+  font-size: 12px;
+}
+
+.query-panel,
+.data-card {
+  border: 1px solid #1c2a43;
+  border-radius: 8px;
+  background: #071123;
+}
+
+.query-panel {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  padding: 14px;
+}
+
+.field {
+  display: grid;
+  min-width: 150px;
+  gap: 6px;
+  color: #aebbd0;
+  font-size: 11px;
+}
+
+.symbol-field {
+  flex: 1 1 300px;
+}
+
+.field input,
+.field select {
+  box-sizing: border-box;
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid #2a3a59;
+  border-radius: 5px;
+  background: #030918;
+  color: #e7edf9;
+  font: inherit;
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+button:focus-visible,
+.docs-link:focus-visible {
+  outline: 2px solid #56a8ff;
+  outline-offset: 2px;
+}
+
+button {
+  min-width: 104px;
+  height: 38px;
+  align-self: end;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 5px;
+  background: #13a875;
+  color: #03150f;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.notice,
+.status {
+  margin: 0;
+  padding: 11px 13px;
+  border: 1px solid #33425d;
+  border-radius: 6px;
+  background: #101b30;
+  color: #c1cde0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.notice code {
+  color: #99c9ff;
+}
+
+.notice.error {
+  border-color: #783846;
+  color: #ffb1b8;
+}
+
+.data-grid {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+  align-content: start;
+  gap: 12px;
+}
+
+.data-card {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.card-header {
+  align-items: flex-start;
+  padding: 13px 14px;
+  border-bottom: 1px solid #1c2a43;
+}
+
+.card-header h2 {
+  margin: 5px 0 0;
+  font-size: 15px;
+}
+
+.card-header .eyebrow {
+  overflow-wrap: anywhere;
+  font-size: 9px;
+}
+
+.source-badge {
+  flex: 0 0 auto;
+  padding: 4px 7px;
+  border-radius: 4px;
+  background: #103c32;
+  color: #72e2b7;
+  font-size: 10px;
+}
+
+.source-badge.failed {
+  background: #45202b;
+  color: #ffb1b8;
+}
+
+.table-wrap {
+  max-height: 380px;
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+th,
+td {
+  min-width: 90px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #15223a;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: #0c1930;
+  color: #aebbd0;
+  font-weight: 600;
+}
+
+td {
+  color: #dce5f5;
+}
+
+.section-error,
+.empty-data {
+  margin: 0;
+  padding: 14px;
+  color: #ffb1b8;
+  font-size: 12px;
+}
+
+.empty-data {
+  color: #9eacc4;
+}
+
+.empty-state {
+  display: grid;
+  min-height: 180px;
+  grid-column: 1 / -1;
+  align-content: center;
+  justify-items: center;
+  gap: 8px;
+  border: 1px dashed #293b5c;
+  border-radius: 8px;
+  color: #9eacc4;
+  text-align: center;
+}
+
+.empty-state strong {
+  color: #dce5f5;
+  font-size: 14px;
+}
+
+.empty-state span {
+  font-size: 12px;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #273957;
+  border-top-color: #13a875;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .fundamental-analysis {
+    padding: 14px;
+  }
+
+  .page-header {
+    align-items: flex-start;
+  }
+
+  .query-panel {
+    align-items: stretch;
+  }
+
+  .field,
+  button {
+    flex: 1 1 100%;
+  }
+}

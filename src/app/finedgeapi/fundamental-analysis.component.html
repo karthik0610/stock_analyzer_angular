@@ -1,0 +1,141 @@
+<main class="fundamental-analysis" aria-label="Fundamental analysis">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">FINEDGE API · FUNDAMENTALS ONLY</p>
+      <h1>Fundamental Analysis</h1>
+      <p class="intro">
+        Company financial statements, profitability ratios, and growth metrics from {{ providerName }}.
+      </p>
+    </div>
+    <a
+      class="docs-link"
+      href="https://www.finedgeapi.com/financial-data-api-documentation"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      API documentation
+    </a>
+  </header>
+
+  <form class="query-panel" (submit)="loadFundamentals($event)">
+    <label class="field symbol-field">
+      <span>Company symbol</span>
+      <input
+        type="search"
+        name="symbol"
+        list="finedge-symbols"
+        autocomplete="off"
+        placeholder="Search or enter a symbol (e.g. ITC)"
+        [(ngModel)]="selectedSymbol"
+        aria-label="Company symbol"
+      />
+      <datalist id="finedge-symbols">
+        @for (company of filteredSymbols; track company.symbol) {
+          <option [value]="company.symbol">{{ company.name }}</option>
+        }
+      </datalist>
+    </label>
+
+    <label class="field">
+      <span>Reporting period</span>
+      <select name="period" [(ngModel)]="selectedPeriod">
+        @for (period of periods; track period) {
+          <option [value]="period">{{ period }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Statement type</span>
+      <select name="statementType" [(ngModel)]="statementType">
+        <option value="s">Standalone</option>
+        <option value="c">Consolidated</option>
+      </select>
+    </label>
+
+    <button type="submit" [disabled]="!apiKeyConfigured || !selectedSymbol.trim() || loadingAnalysis">
+      {{ loadingAnalysis ? 'Loading…' : 'Analyze' }}
+    </button>
+  </form>
+
+  @if (!apiKeyConfigured) {
+    <p class="notice" role="status">
+      Add your FinEdge API key to <code>finedgeapi.constants.ts</code> to connect. The placeholder is not a
+      valid key. For production, keep the key on a server and proxy these requests.
+    </p>
+  } @else if (loadingSymbols) {
+    <p class="status" role="status">Loading symbols from FinEdge… You can also enter a symbol directly.</p>
+  } @else if (symbolLoadError) {
+    <p class="notice" role="status">
+      Could not load the symbol list: {{ symbolLoadError }} You can still enter a symbol manually.
+    </p>
+  }
+
+  @if (requestError) {
+    <p class="notice error" role="alert">{{ requestError }}</p>
+  }
+
+  <section class="data-grid" aria-label="Fundamental data" [attr.aria-busy]="loadingAnalysis">
+    @if (loadingAnalysis) {
+      <div class="empty-state" role="status">
+        <span class="spinner" aria-hidden="true"></span>
+        <strong>Loading {{ selectedSymbol }} fundamentals</strong>
+        <span>Retrieving data from FinEdge API endpoints…</span>
+      </div>
+    } @else if (sections.length > 0) {
+      @for (section of sections; track section.id) {
+        <article class="data-card">
+          <header class="card-header">
+            <div>
+              <p class="eyebrow">{{ section.endpoint }}</p>
+              <h2>{{ section.title }}</h2>
+            </div>
+            <span class="source-badge" [class.failed]="section.status === 'error'">
+              {{ section.status === 'success' ? 'FinEdge data' : 'Unavailable' }}
+            </span>
+          </header>
+
+          @if (section.status === 'error') {
+            <p class="section-error" role="status">{{ section.error }}</p>
+          } @else {
+            @let table = tableFor(section.data);
+            @if (table.rows.length > 0) {
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      @for (column of table.columns; track column) {
+                        <th scope="col">{{ column }}</th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of table.rows; track $index) {
+                      <tr>
+                        @for (cell of row; track $index) {
+                          <td>{{ formatCell(cell) }}</td>
+                        }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <p class="empty-data">No data was returned for this section.</p>
+            }
+          }
+        </article>
+      }
+    } @else if (selectedSymbol) {
+      <div class="empty-state">
+        <strong>Ready to analyze {{ selectedSymbol }}</strong>
+        <span>Choose a reporting period and submit to load its fundamental data.</span>
+      </div>
+    } @else {
+      <div class="empty-state">
+        <strong>Enter a company symbol to begin</strong>
+        <span>All displayed fundamental data will come from the configured FinEdge API.</span>
+      </div>
+    }
+  </section>
+</main>

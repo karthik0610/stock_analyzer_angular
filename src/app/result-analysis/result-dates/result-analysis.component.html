@@ -1,57 +1,96 @@
 <main class="result-analysis" aria-label="Result Analysis">
-  <aside class="results-list" aria-label="Stock results by day">
+  <aside class="results-list" aria-label="Listed stock list">
     <header class="list-heading">
-      <h1>Stock Results</h1>
+      <h1>Listed Stocks</h1>
     </header>
+    <div class="stock-search-container">
+      <input
+        class="stock-search"
+        type="search"
+        placeholder="Search listed stocks"
+        aria-label="Search listed stocks by name or symbol"
+        [value]="searchTerm"
+        (input)="updateSearch($event)"
+      />
+    </div>
 
-    <div class="day-groups">
-      @for (day of resultDays; track day.label) {
-        <section class="day-group" [attr.aria-label]="day.label + ' results'">
-          <h2>{{ day.label }}</h2>
-          @for (stock of day.stocks; track stock.symbol) {
-            <button
-              class="stock-result"
-              type="button"
-              [class.selected]="selectedStock.symbol === stock.symbol"
-              [attr.aria-pressed]="selectedStock.symbol === stock.symbol"
-              [attr.aria-label]="stock.name + ', ' + day.label + ', result ' + stock.result"
-              (click)="selectStock(stock)"
-            >
-              <div class="stock-name">
-                <strong>{{ stock.name }}</strong>
-                <span>{{ stock.symbol }}</span>
+    <div class="stock-list">
+      @if (isLoadingStocks) {
+        <p class="stock-list-status">Loading workbook stocks…</p>
+      } @else if (stockLoadError) {
+        <p class="stock-list-status" role="alert">Could not load workbook stocks.</p>
+      } @else if (filteredStocks.length === 0) {
+        <p class="stock-list-status">No stocks match your search.</p>
+      } @else {
+        @for (stock of filteredStocks; track stock.id) {
+          <button
+            class="stock-result"
+            type="button"
+            [class.selected]="selectedStock?.id === stock.id"
+            [attr.aria-pressed]="selectedStock?.id === stock.id"
+            (click)="selectStock(stock)"
+          >
+            <div class="stock-name">
+              <strong>{{ stock.name }}</strong>
+              <div class="stock-symbol-row">
+                @if (stock.bseSymbol && stock.nseSymbol && stock.bseSymbol !== stock.nseSymbol) {
+                  <span class="stock-symbol">BSE: {{ stock.bseSymbol }} · NSE: {{ stock.nseSymbol }}</span>
+                } @else {
+                  <span class="stock-symbol">{{ stock.bseSymbol || stock.nseSymbol || 'Symbol unavailable' }}</span>
+                }
+                <span
+                  class="market-cap-label"
+                  [class.large-cap]="stock.category === 'Large Cap'"
+                  [class.mid-cap]="stock.category === 'Mid Cap'"
+                  [class.small-cap]="stock.category === 'Small Cap'"
+                  [attr.aria-label]="stock.category"
+                  [title]="stock.category"
+                >
+                  {{ stock.category === 'Large Cap' ? 'L' : stock.category === 'Mid Cap' ? 'M' : 'S' }}
+                </span>
               </div>
-              <div class="stock-change" [class.loss]="!stock.positive">
-                <strong>{{ stock.result }}</strong>
-                <span>{{ stock.change }}</span>
-              </div>
-            </button>
-          }
-        </section>
+            </div>
+          </button>
+        }
       }
     </div>
   </aside>
 
-  <section class="analysis-grid" aria-label="Company analysis categories" [attr.aria-busy]="isLoading">
-    @for (category of analysisCategories; track category.title) {
-      <app-analysis-tile
-        [title]="category.title"
-        [companyName]="selectedStock.name"
-        [summary]="category.summary ?? ''"
-        [points]="category.points"
-        [warnings]="category.warnings ?? []"
-      />
-    }
-    <app-final-call-tile
-      [companyName]="selectedStock.name"
-      [stockSymbol]="selectedStock.symbol"
-    />
-    @if (isLoading) {
+  <section class="analysis-grid" aria-label="Company analysis categories" [attr.aria-busy]="isLoading || isLoadingStocks">
+    @if (selectedStock; as stock) {
+      @for (category of analysisCategories; track category.title) {
+        <app-analysis-tile
+          [title]="category.title"
+          [companyName]="stock.name"
+          [summary]="category.summary ?? ''"
+          [points]="category.points"
+          [warnings]="category.warnings ?? []"
+        />
+      }
+      @if (hasFinalCallSample(stock.symbol)) {
+        <app-final-call-tile
+          [companyName]="stock.name"
+          [stockSymbol]="stock.symbol"
+        />
+      } @else {
+        <p class="final-call-unavailable" role="status">
+          Illustrative final-call data is not available for {{ stock.name }}.
+        </p>
+      }
+      @if (isLoading) {
+        <div class="loading-overlay" role="status" aria-live="polite">
+          <span class="loading-spinner" aria-hidden="true"></span>
+          <strong>Loading {{ stock.name }} analysis</strong>
+          <span>Updating sample metrics…</span>
+        </div>
+      }
+    } @else if (isLoadingStocks) {
       <div class="loading-overlay" role="status" aria-live="polite">
         <span class="loading-spinner" aria-hidden="true"></span>
-        <strong>Loading {{ selectedStock.name }} analysis</strong>
-        <span>Updating sample metrics…</span>
+        <strong>Loading stock data</strong>
       </div>
+    } @else if (stockLoadError) {
+      <p class="final-call-unavailable" role="alert">Stock analysis is unavailable because the workbook data failed to load.</p>
     }
   </section>
 </main>

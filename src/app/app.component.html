@@ -8,6 +8,8 @@
     <app-finalized-stocks class="dashboard-panel" />
     <app-stock-analysis class="dashboard-panel" />
   </main>
-} @else {
+} @else if (activeScreen === 'result-analysis') {
   <app-result-analysis />
+} @else {
+  <app-fundamental-analysis />
 }

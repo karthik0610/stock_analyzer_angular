@@ -7,6 +7,7 @@ import { TopStocksComponent } from './components/top-stocks/top-stocks.component
 import { TradingRulesComponent } from './components/trading-rules/trading-rules.component';
 import { WatchlistComponent } from './components/watchlist/watchlist.component';
 import { ResultAnalysisComponent } from './result-analysis/result-dates/result-analysis.component';
+import { FundamentalAnalysisComponent } from './finedgeapi/fundamental-analysis.component';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,7 @@ import { ResultAnalysisComponent } from './result-analysis/result-dates/result-a
     TradingRulesComponent,
     FinalizedStocksComponent,
     StockAnalysisComponent,
+    FundamentalAnalysisComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

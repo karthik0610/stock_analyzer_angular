@@ -30,9 +30,9 @@ export const analysisCategories: AnalysisCategory[] = [
   {
     title: '2. Fundamental / Financial Health',
     points: [
-      { label: 'Revenue growth', value: '+12.4% 3Y CAGR', detail: 'Example revenue has grown consistently over three years.', status: 'positive' },
-      { label: 'Net profit growth', value: '+9.8% 3Y CAGR', detail: 'Example profit growth is slightly behind revenue growth.', status: 'positive' },
-      { label: 'Net Profit Margin (NPM)', value: '8.6%', detail: 'Example profit per ₹100 of sales.', status: 'neutral' },
+      { label: 'Revenue growth', value: 'Loading…', detail: 'Calculated from FinEdge consolidated annual P&L income.', status: 'neutral' },
+      { label: 'Net profit growth', value: 'Loading…', detail: 'Calculated from FinEdge consolidated annual P&L profit.', status: 'neutral' },
+      { label: 'Net Profit Margin (NPM)', value: 'Loading…', detail: 'Calculated from the latest FinEdge annual P&L.', status: 'neutral' },
       { label: 'Operating Profit Margin (OPM / EBITDA)', value: '17.2%', detail: 'Example core business profitability.', status: 'positive' },
       { label: 'EPS (Earnings Per Share)', value: '₹60.40 · +10.2% YoY', detail: 'Example earnings per share are growing.', status: 'positive' },
       { label: 'ROE (Return on Equity)', value: '10.1%', detail: 'Below the 15% healthy reference from your checklist.', status: 'caution' },
@@ -198,7 +198,7 @@ const stockSampleProfiles: Record<string, StockSampleProfile> = {
       'Industry direction': { value: 'Credit and digital banking: growing', detail: 'Deposit competition and credit quality remain important.' },
     },
     summaries: {
-      '2. Fundamental / Financial Health': 'Demo bank snapshot: revenue +13.6%, profit +11.2%, NIM 3.6%, ROE 17.1%.',
+      '2. Fundamental / Financial Health': 'Demo bank snapshot: NIM 3.6%, ROE 17.1%.',
       '3. Technical Analysis': 'Demo quote ₹1,680; 200 DMA ₹1,620; RSI 54; neutral-to-positive trend.',
       '4. Shareholding Pattern': 'Demo promoter stake 25.2%; FII +0.4 pp QoQ; pledge 0%.',
       '5. Balance Sheet Strength': 'Bank-specific demo: capital adequacy 19.3%; gross NPA 1.4%; deposits remain the key funding base.',
@@ -212,9 +212,6 @@ const stockSampleProfiles: Record<string, StockSampleProfile> = {
     },
     pointOverrides: {
       '2. Fundamental / Financial Health': {
-        'Revenue growth': { value: '+13.6% 3Y CAGR', status: 'positive' },
-        'Net profit growth': { value: '+11.2% 3Y CAGR', status: 'positive' },
-        'Net Profit Margin (NPM)': { value: 'NIM 3.6%', detail: 'Banks are commonly assessed using net interest margin.' },
         'ROE (Return on Equity)': { value: '17.1%', status: 'positive' },
         'ROA (Return on Assets)': { value: '1.9%', detail: 'Illustrative bank profitability measure.' },
         'PE Ratio': { value: '21.8×', status: 'neutral' },
@@ -242,7 +239,7 @@ const stockSampleProfiles: Record<string, StockSampleProfile> = {
       'Industry direction': { value: 'Cloud and AI services: growing', detail: 'Technology budgets and client spending cycles can vary.' },
     },
     summaries: {
-      '2. Fundamental / Financial Health': 'Demo IT snapshot: revenue +9.1%, operating margin 21.0%, ROE 31.0%, net cash.',
+      '2. Fundamental / Financial Health': 'Demo IT snapshot: operating margin 21.0%, ROE 31.0%, net cash.',
       '3. Technical Analysis': 'Demo quote ₹1,662; 200 DMA ₹1,590; RSI 57; positive trend.',
       '4. Shareholding Pattern': 'Demo promoter stake 14.3%; FII 33.2%; pledge 0%.',
       '5. Balance Sheet Strength': 'Demo snapshot: net cash ₹28,000 Cr; receivable days 66; monitor collections.',
@@ -256,8 +253,6 @@ const stockSampleProfiles: Record<string, StockSampleProfile> = {
     },
     pointOverrides: {
       '2. Fundamental / Financial Health': {
-        'Revenue growth': { value: '+9.1% 3Y CAGR', status: 'positive' },
-        'Net profit growth': { value: '+8.4% 3Y CAGR', status: 'positive' },
         'Operating Profit Margin (OPM / EBITDA)': { value: '21.0%', status: 'positive' },
         'ROE (Return on Equity)': { value: '31.0%', status: 'positive' },
         'PE Ratio': { value: '27.4×', status: 'caution' },
@@ -285,7 +280,7 @@ const stockSampleProfiles: Record<string, StockSampleProfile> = {
       'Industry direction': { value: 'Digital transformation: growing', detail: 'Client technology budgets remain a key cycle indicator.' },
     },
     summaries: {
-      '2. Fundamental / Financial Health': 'Demo IT snapshot: revenue +7.6%, operating margin 24.5%, ROE 52.0%, net cash.',
+      '2. Fundamental / Financial Health': 'Demo IT snapshot: operating margin 24.5%, ROE 52.0%, net cash.',
       '3. Technical Analysis': 'Demo quote ₹4,356; 200 DMA ₹4,190; RSI 61; positive momentum.',
       '4. Shareholding Pattern': 'Demo promoter stake 71.7%; FII 12.8%; pledge 0%.',
       '5. Balance Sheet Strength': 'Demo snapshot: net cash ₹45,000 Cr; receivable days 72; low debt.',
@@ -299,8 +294,6 @@ const stockSampleProfiles: Record<string, StockSampleProfile> = {
     },
     pointOverrides: {
       '2. Fundamental / Financial Health': {
-        'Revenue growth': { value: '+7.6% 3Y CAGR', status: 'neutral' },
-        'Net profit growth': { value: '+8.8% 3Y CAGR', status: 'positive' },
         'Operating Profit Margin (OPM / EBITDA)': { value: '24.5%', status: 'positive' },
         'ROE (Return on Equity)': { value: '52.0%', status: 'positive' },
         'PE Ratio': { value: '31.2×', status: 'caution' },
@@ -328,7 +321,7 @@ const stockSampleProfiles: Record<string, StockSampleProfile> = {
       'Industry direction': { value: 'Formal credit and digital banking: growing', detail: 'Deposit costs and credit quality remain important.' },
     },
     summaries: {
-      '2. Fundamental / Financial Health': 'Demo bank snapshot: revenue +16.2%, profit +18.0%, ROE 17.8%, NIM 4.4%.',
+      '2. Fundamental / Financial Health': 'Demo bank snapshot: ROE 17.8%, NIM 4.4%.',
       '3. Technical Analysis': 'Demo quote ₹1,287; 200 DMA ₹1,220; RSI 59; positive trend.',
       '4. Shareholding Pattern': 'Demo promoter stake 50.9%; FII 44.1%; pledge 0%.',
       '5. Balance Sheet Strength': 'Bank-specific demo: capital adequacy 16.8%; gross NPA 1.9%; monitor loan mix.',
@@ -342,9 +335,6 @@ const stockSampleProfiles: Record<string, StockSampleProfile> = {
     },
     pointOverrides: {
       '2. Fundamental / Financial Health': {
-        'Revenue growth': { value: '+16.2% 3Y CAGR', status: 'positive' },
-        'Net profit growth': { value: '+18.0% 3Y CAGR', status: 'positive' },
-        'Net Profit Margin (NPM)': { value: 'NIM 4.4%', detail: 'Banks are commonly assessed using net interest margin.' },
         'ROE (Return on Equity)': { value: '17.8%', status: 'positive' },
         'ROA (Return on Assets)': { value: '2.2%', detail: 'Illustrative bank profitability measure.' },
         'PE Ratio': { value: '18.6×', status: 'neutral' },
@@ -372,7 +362,7 @@ const stockSampleProfiles: Record<string, StockSampleProfile> = {
       'Industry direction': { value: 'Data usage and 5G: growing', detail: 'Competition, spectrum costs, and pricing are key factors.' },
     },
     summaries: {
-      '2. Fundamental / Financial Health': 'Demo telecom snapshot: revenue +13.0%, EBITDA margin 52.0%, net debt/EBITDA 1.8×.',
+      '2. Fundamental / Financial Health': 'Demo telecom snapshot: EBITDA margin 52.0%, net debt/EBITDA 1.8×.',
       '3. Technical Analysis': 'Demo quote ₹1,712; 200 DMA ₹1,630; RSI 63; positive trend.',
       '4. Shareholding Pattern': 'Demo promoter stake 55.1%; FII 18.2%; pledge 0%.',
       '5. Balance Sheet Strength': 'Demo snapshot: net debt ₹1.9 lakh Cr; spectrum liabilities are a key balance-sheet item.',
@@ -386,8 +376,6 @@ const stockSampleProfiles: Record<string, StockSampleProfile> = {
     },
     pointOverrides: {
       '2. Fundamental / Financial Health': {
-        'Revenue growth': { value: '+13.0% 3Y CAGR', status: 'positive' },
-        'Net profit growth': { value: '+17.5% 3Y CAGR', status: 'positive' },
         'Operating Profit Margin (OPM / EBITDA)': { value: '52.0%', status: 'positive' },
         'Debt-to-Equity (D/E)': { value: '1.4×', status: 'caution' },
         'Interest Coverage': { value: '3.6×', status: 'positive' },
