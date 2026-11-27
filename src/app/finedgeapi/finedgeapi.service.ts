@@ -12,6 +12,14 @@ import {
 import type { FundamentalPeriod } from './finedgeapi.constants';
 import { calculateFinancialGrowthCagrs } from './revenue-growth';
 import type { FinancialGrowthCagrs } from './revenue-growth';
+import { calculateShareholdingPattern } from './shareholding-pattern';
+import type { ShareholdingPatternMetrics } from './shareholding-pattern';
+import { parseSectorPeers } from './sector-peers';
+import { parseCompanyDescription } from './company-profile';
+import { parseLatestSegmentRevenueNames } from './segment-revenue';
+import type { SegmentRevenueNames } from './segment-revenue';
+import { parseStockQuote } from './quote';
+import type { StockQuote } from './quote';
 import {
   type CompanySymbol,
   type FundamentalDataProvider,
@@ -31,15 +39,103 @@ export class FinEdgeApiService implements FundamentalDataProvider {
   }
 
   getFinancialGrowthCagrs(symbol: string, years: number): Observable<FinancialGrowthCagrs> {
-    return this.http
-      .get<unknown>(FINEDGE_API_ENDPOINTS.financials(symbol), {
+    const financialsEndpoint = FINEDGE_API_ENDPOINTS.financials(symbol);
+    const statementParams = { statement_type: 'c', period: 'annual' };
+    const profitAndLossRequest = this.http.get<unknown>(financialsEndpoint, {
+      params: this.createParams({
+        ...statementParams,
+        statement_code: FINEDGE_STATEMENT_CODES.profitAndLoss,
+      }),
+    });
+    const balanceSheetRequest = this.http
+      .get<unknown>(financialsEndpoint, {
         params: this.createParams({
-          statement_type: 'c',
+          ...statementParams,
+          statement_code: FINEDGE_STATEMENT_CODES.balanceSheet,
+        }),
+      })
+      .pipe(
+        map((data) => ({ data, error: null as string | null })),
+        catchError((error: unknown) =>
+          of({ data: null, error: this.describeError(error) }),
+        ),
+      );
+    const annualPriceRatiosRequest = this.http
+      .get<unknown>(FINEDGE_API_ENDPOINTS.annualPriceRatios(symbol), {
+        params: this.createParams({ statement_type: 's' }),
+      })
+      .pipe(
+        map((data) => ({ data, error: null as string | null })),
+        catchError((error: unknown) =>
+          of({ data: null, error: this.describeError(error) }),
+        ),
+      );
+
+    return forkJoin({
+      profitAndLoss: profitAndLossRequest,
+      balanceSheet: balanceSheetRequest,
+      annualPriceRatios: annualPriceRatiosRequest,
+    }).pipe(
+      map(({ profitAndLoss, balanceSheet, annualPriceRatios }) => {
+        const metrics = calculateFinancialGrowthCagrs(
+          profitAndLoss,
+          years,
+          balanceSheet.data,
+          annualPriceRatios.data,
+        );
+        return {
+          ...metrics,
+          ...(balanceSheet.error ? { balanceSheetError: balanceSheet.error } : {}),
+          ...(annualPriceRatios.error
+            ? { annualPriceRatiosError: annualPriceRatios.error }
+            : {}),
+        };
+      }),
+    );
+  }
+
+  getShareholdingPattern(symbol: string): Observable<ShareholdingPatternMetrics> {
+    return this.http
+      .get<unknown>(FINEDGE_API_ENDPOINTS.shareholdingPattern(symbol), {
+        params: this.createParams({ period: 'quarterly' }),
+      })
+      .pipe(map(calculateShareholdingPattern));
+  }
+
+  getSectorPeers(symbol: string): Observable<string[]> {
+    return this.http
+      .get<unknown>(FINEDGE_API_ENDPOINTS.sectorPeers(symbol), {
+        params: this.createParams({ group: 'sector' }),
+      })
+      .pipe(map(parseSectorPeers));
+  }
+
+  getCompanyDescription(symbol: string): Observable<string> {
+    return this.http
+      .get<unknown>(FINEDGE_API_ENDPOINTS.companyProfile(symbol), {
+        params: this.createParams(),
+      })
+      .pipe(map(parseCompanyDescription));
+  }
+
+  getLatestSegmentRevenueNames(symbol: string): Observable<SegmentRevenueNames> {
+    return this.http
+      .get<unknown>(FINEDGE_API_ENDPOINTS.segmentRevenue(symbol), {
+        params: this.createParams({
+          statement_type: 's',
           statement_code: FINEDGE_STATEMENT_CODES.profitAndLoss,
           period: 'annual',
         }),
       })
-      .pipe(map((payload) => calculateFinancialGrowthCagrs(payload, years)));
+      .pipe(map(parseLatestSegmentRevenueNames));
+  }
+
+  getQuote(symbol: string): Observable<StockQuote> {
+    return this.http
+      .get<unknown>(FINEDGE_API_ENDPOINTS.quote, {
+        params: this.createParams({ symbol }),
+      })
+      .pipe(map((payload) => parseStockQuote(payload, symbol)));
   }
 
   getFundamentals(

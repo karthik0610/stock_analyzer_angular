@@ -56,8 +56,18 @@
     </div>
   </aside>
 
-  <section class="analysis-grid" aria-label="Company analysis categories" [attr.aria-busy]="isLoading || isLoadingStocks">
+  <section
+    class="analysis-grid"
+    aria-label="Company analysis categories"
+    [attr.aria-busy]="isLoading || isLoadingStocks || isLoadingQuote"
+  >
     @if (selectedStock; as stock) {
+      <app-quote-snapshot
+        [companyName]="stock.name"
+        [quote]="quote"
+        [loading]="isLoadingQuote"
+        [error]="quoteError"
+      />
       @for (category of analysisCategories; track category.title) {
         <app-analysis-tile
           [title]="category.title"

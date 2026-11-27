@@ -14,6 +14,17 @@ export const FINEDGE_API_ENDPOINTS = {
     `${FINEDGE_API_BASE_URL}/ratios/${encodeURIComponent(symbol)}`,
   financialMetrics: (symbol: string) =>
     `${FINEDGE_API_BASE_URL}/financial-metrics/${encodeURIComponent(symbol)}`,
+  annualPriceRatios: (symbol: string) =>
+    `${FINEDGE_API_BASE_URL}/annual-price-ratios/${encodeURIComponent(symbol)}`,
+  shareholdingPattern: (symbol: string) =>
+    `${FINEDGE_API_BASE_URL}/shareholdings/pattern/${encodeURIComponent(symbol)}`,
+  sectorPeers: (symbol: string) =>
+    `${FINEDGE_API_BASE_URL}/peers/${encodeURIComponent(symbol)}`,
+  companyProfile: (symbol: string) =>
+    `${FINEDGE_API_BASE_URL}/company-profile/${encodeURIComponent(symbol)}`,
+  segmentRevenue: (symbol: string) =>
+    `${FINEDGE_API_BASE_URL}/segment-revenue/${encodeURIComponent(symbol)}`,
+  quote: `${FINEDGE_API_BASE_URL}/quote`,
 } as const;
 
 export const FINEDGE_STATEMENT_CODES = {

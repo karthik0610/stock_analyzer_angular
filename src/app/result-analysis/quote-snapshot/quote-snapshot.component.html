@@ -1,0 +1,102 @@
+<section class="quote-snapshot" aria-labelledby="market-snapshot-title">
+  <header class="snapshot-header">
+    <div>
+      <p class="eyebrow">FINEDGE · MARKET DATA</p>
+      <h2 id="market-snapshot-title">Market Snapshot</h2>
+      <p class="company-line">{{ companyName }} <span>{{ quote?.symbol }}</span></p>
+    </div>
+    <span class="data-badge"><span aria-hidden="true"></span> QUOTE</span>
+  </header>
+
+  @if (loading) {
+    <p class="snapshot-state" role="status">Loading quote data…</p>
+  } @else if (error) {
+    <p class="snapshot-state error" role="alert">{{ error }}</p>
+  } @else if (quote; as data) {
+    <div class="snapshot-body">
+      <div class="price-overview">
+        <div class="price-main">
+          <span class="metric-label">Last traded price</span>
+          <strong class="current-price">₹{{ formatPrice(data.currentPrice) }}</strong>
+          <span
+            class="change-pill"
+            [class.negative]="data.changePercent < 0"
+            [class.positive]="data.changePercent > 0"
+          >
+            {{ formatChange(data.changePercent) }}
+          </span>
+        </div>
+
+        <div class="year-range range-panel">
+          <div class="range-heading">
+            <span>52-week range</span>
+            <strong>₹{{ formatPrice(data.low52) }} — ₹{{ formatPrice(data.high52) }}</strong>
+          </div>
+          <div
+            class="range-track"
+            role="img"
+            [attr.aria-label]="'Current price position in 52-week range: ' + yearRangePosition.toFixed(0) + '%'"
+          >
+            <span class="range-fill"></span>
+            <span class="range-marker" [style.left.%]="yearRangePosition"></span>
+          </div>
+          <div class="range-ends">
+            <span>LOW · ₹{{ formatPrice(data.low52) }}</span>
+            <span>HIGH · ₹{{ formatPrice(data.high52) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="session-range range-panel">
+        <div class="range-heading">
+          <span>Today’s trading range</span>
+          <strong>₹{{ formatPrice(data.lowPrice) }} — ₹{{ formatPrice(data.highPrice) }}</strong>
+        </div>
+        <div
+          class="range-track session-track"
+          role="img"
+          [attr.aria-label]="'Current price position in today’s range: ' + sessionRangePosition.toFixed(0) + '%'"
+        >
+          <span class="range-fill"></span>
+          <span class="range-marker" [style.left.%]="sessionRangePosition"></span>
+        </div>
+        <div class="range-ends">
+          <span>LOW · ₹{{ formatPrice(data.lowPrice) }}</span>
+          <span>HIGH · ₹{{ formatPrice(data.highPrice) }}</span>
+        </div>
+      </div>
+
+      <div class="snapshot-metrics">
+        <article class="metric-card market-cap">
+          <span class="metric-label">Market capitalization</span>
+          <strong>₹{{ formatMarketCap(data.marketCap) }} Cr</strong>
+          <small>API-reported value</small>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">Open</span>
+          <strong>₹{{ formatPrice(data.openPrice) }}</strong>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">Session high</span>
+          <strong>₹{{ formatPrice(data.highPrice) }}</strong>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">Session low</span>
+          <strong>₹{{ formatPrice(data.lowPrice) }}</strong>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">Shares</span>
+          <strong>{{ formatNumber(data.shares) }}</strong>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">Volume</span>
+          <strong>{{ formatNumber(data.volume) }}</strong>
+        </article>
+        <article class="metric-card trade-time">
+          <span class="metric-label">Trade time</span>
+          <strong>{{ formatTradeTime(data.tradeTime) }}</strong>
+        </article>
+      </div>
+    </div>
+  }
+</section>

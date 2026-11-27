@@ -2,6 +2,9 @@ import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 import type { FundamentalPeriod } from './finedgeapi.constants';
 import type { FinancialGrowthCagrs } from './revenue-growth';
+import type { ShareholdingPatternMetrics } from './shareholding-pattern';
+import type { SegmentRevenueNames } from './segment-revenue';
+import type { StockQuote } from './quote';
 
 export interface CompanySymbol {
   symbol: string;
@@ -30,6 +33,11 @@ export interface FundamentalDataProvider {
     options: FundamentalQueryOptions,
   ): Observable<FundamentalDataSection[]>;
   getFinancialGrowthCagrs(symbol: string, years: number): Observable<FinancialGrowthCagrs>;
+  getShareholdingPattern(symbol: string): Observable<ShareholdingPatternMetrics>;
+  getSectorPeers(symbol: string): Observable<string[]>;
+  getCompanyDescription(symbol: string): Observable<string>;
+  getLatestSegmentRevenueNames(symbol: string): Observable<SegmentRevenueNames>;
+  getQuote(symbol: string): Observable<StockQuote>;
 }
 
 export const FUNDAMENTAL_DATA_PROVIDER = new InjectionToken<FundamentalDataProvider>(

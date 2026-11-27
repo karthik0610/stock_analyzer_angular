@@ -18,11 +18,11 @@ export const analysisCategories: AnalysisCategory[] = [
   {
     title: '1. Business Understanding',
     points: [
-      { label: 'Company', value: 'Reliance Industries', detail: 'Illustrative company profile.', status: 'neutral' },
-      { label: 'What does the company do?', value: 'Energy, retail, telecom, and digital services.', detail: 'A diversified Indian business serving consumers and enterprises.' },
-      { label: 'How does it make money?', value: 'Products, retail sales, plans, and subscriptions.', detail: 'Revenue model: energy and materials, retail, telecom, and digital services.' },
+      { label: 'Company', value: 'Loading…', detail: 'Selected listed stock.', status: 'neutral' },
+      { label: 'What does the company do?', value: 'Loading…', detail: 'Loading the FinEdge company profile description.', status: 'neutral' },
+      { label: 'How does it make money?', value: 'Loading…', detail: 'Loading the latest FinEdge annual segment names.', status: 'neutral' },
       { label: 'Who are its customers?', value: 'B2B · B2C · Government', detail: 'Example mix: enterprises, shoppers and subscribers, plus public-sector contracts.' },
-      { label: 'Competitors and market position', value: 'Leader in some segments; peer in others.', detail: 'Example peers: Indian Oil, Bharti Airtel, and large retailers.' },
+      { label: 'Competitors and market position', value: 'Loading…', detail: 'Loading sector peers from FinEdge API.', status: 'neutral' },
       { label: 'Moat / competitive advantage', value: 'Brand · scale · infrastructure · network', detail: 'Illustrative advantages that may be difficult and costly to replicate.' },
       { label: 'Industry direction', value: 'Retail and digital: growing · Energy: mature', detail: 'Outlook varies across the company’s business segments.' },
     ],
@@ -33,13 +33,13 @@ export const analysisCategories: AnalysisCategory[] = [
       { label: 'Revenue growth', value: 'Loading…', detail: 'Calculated from FinEdge consolidated annual P&L income.', status: 'neutral' },
       { label: 'Net profit growth', value: 'Loading…', detail: 'Calculated from FinEdge consolidated annual P&L profit.', status: 'neutral' },
       { label: 'Net Profit Margin (NPM)', value: 'Loading…', detail: 'Calculated from the latest FinEdge annual P&L.', status: 'neutral' },
-      { label: 'Operating Profit Margin (OPM / EBITDA)', value: '17.2%', detail: 'Example core business profitability.', status: 'positive' },
-      { label: 'EPS (Earnings Per Share)', value: '₹60.40 · +10.2% YoY', detail: 'Example earnings per share are growing.', status: 'positive' },
-      { label: 'ROE (Return on Equity)', value: '10.1%', detail: 'Below the 15% healthy reference from your checklist.', status: 'caution' },
-      { label: 'ROCE (Return on Capital Employed)', value: '14.2%', detail: 'Near, but below, the 15% reference.', status: 'caution' },
-      { label: 'ROA (Return on Assets)', value: '4.3%', detail: 'Especially useful when reviewing banks and NBFCs.', status: 'neutral' },
-      { label: 'PE Ratio', value: '24.7×', detail: 'Example sector PE: 22×; own 5-year average: 21.5×.', status: 'caution' },
-      { label: 'PB Ratio (Price-to-Book)', value: '2.4×', detail: 'Compare with sector peers, especially for banks and asset-heavy firms.' },
+      { label: 'Operating Profit Margin (OPM / EBITDA)', value: 'Loading…', detail: 'Calculated from the latest FinEdge annual P&L.', status: 'neutral' },
+      { label: 'EPS (Earnings Per Share)', value: 'Loading…', detail: 'Calculated from the latest FinEdge diluted annual P&L values.', status: 'neutral' },
+      { label: 'ROE (Return on Equity)', value: 'Loading…', detail: 'Calculated from the latest FinEdge P&L and balance sheet.', status: 'neutral' },
+      { label: 'ROCE (Return on Capital Employed)', value: 'Loading…', detail: 'Calculated from the latest FinEdge P&L and balance sheet.', status: 'neutral' },
+      { label: 'ROA (Return on Assets)', value: 'Loading…', detail: 'Calculated from the latest FinEdge P&L and balance sheet.', status: 'neutral' },
+      { label: 'PE Ratio', value: 'Loading…', detail: 'Calculated from FinEdge annual price ratios.', status: 'neutral' },
+      { label: 'PB Ratio (Price-to-Book)', value: 'Loading…', detail: 'Calculated from FinEdge annual price ratios.', status: 'neutral' },
       { label: 'EV/EBITDA', value: '12.8×', detail: 'Example peer-comparison multiple, accounting for debt.' },
       { label: 'PEG Ratio', value: '2.0×', detail: 'Near the costly reference level of 2×.', status: 'caution' },
       { label: 'Dividend Yield', value: '0.4%', detail: 'Example annual dividend as a percentage of share price.' },
@@ -69,12 +69,12 @@ export const analysisCategories: AnalysisCategory[] = [
   {
     title: '4. Shareholding Pattern',
     points: [
-      { label: 'Promoter Holding', value: '50.3% · unchanged QoQ', detail: 'Above the 50% reference; track changes over time.', status: 'positive' },
-      { label: 'Promoter Pledge', value: '0.0%', detail: 'No pledged shares in this example.', status: 'positive' },
-      { label: 'FII Holding', value: '18.1% · +0.3 pp QoQ', detail: 'Example foreign institutional ownership is rising.', status: 'positive' },
-      { label: 'DII Holding', value: '16.6% · +0.5 pp QoQ', detail: 'Example domestic institutional ownership is rising.', status: 'positive' },
-      { label: 'Retail Holding', value: '15.0% · −0.8 pp QoQ', detail: 'Example retail ownership is slightly lower.', status: 'neutral' },
-      { label: 'Quarter-on-Quarter Change', value: 'Institutions net buyers', detail: 'Example FII and DII holdings increased this quarter.', status: 'positive' },
+      { label: 'Promoter Holding', value: 'Loading…', detail: 'Loading the latest FinEdge quarterly shareholding pattern.', status: 'neutral' },
+      { label: 'Promoter Pledge', value: '', detail: 'Pledge data is not connected yet.', status: 'neutral' },
+      { label: 'FII Holding', value: 'Loading…', detail: 'Loading the latest FinEdge quarterly shareholding pattern.', status: 'neutral' },
+      { label: 'DII Holding', value: 'Loading…', detail: 'Loading the latest FinEdge quarterly shareholding pattern.', status: 'neutral' },
+      { label: 'Retail Holding', value: 'Loading…', detail: 'Loading the latest FinEdge quarterly shareholding pattern.', status: 'neutral' },
+      { label: 'Quarter-on-Quarter Change', value: 'Loading…', detail: 'Loading FII and DII quarterly changes from FinEdge.', status: 'neutral' },
     ],
   },
   {
@@ -189,18 +189,13 @@ interface StockSampleProfile {
 const stockSampleProfiles: Record<string, StockSampleProfile> = {
   HDFCBANK: {
     businessPoints: {
-      Company: { value: 'HDFC Bank' },
-      'What does the company do?': { value: 'Banking, lending, cards, and digital financial services.', detail: 'Illustrative private-sector bank profile.' },
-      'How does it make money?': { value: 'Net interest income, fees, cards, and lending.', detail: 'Example revenue from deposits, loans, payments, and other services.' },
       'Who are its customers?': { value: 'Individuals · SMEs · Corporates', detail: 'Example retail and commercial banking customer mix.' },
-      'Competitors and market position': { value: 'Large private-bank leader.', detail: 'Example peers: ICICI Bank, SBI, and Axis Bank.' },
       'Moat / competitive advantage': { value: 'Brand · branch network · deposits', detail: 'Illustrative trust, distribution, and customer relationships.' },
       'Industry direction': { value: 'Credit and digital banking: growing', detail: 'Deposit competition and credit quality remain important.' },
     },
     summaries: {
-      '2. Fundamental / Financial Health': 'Demo bank snapshot: NIM 3.6%, ROE 17.1%.',
+      '2. Fundamental / Financial Health': 'Demo bank snapshot: NIM 3.6%.',
       '3. Technical Analysis': 'Demo quote ₹1,680; 200 DMA ₹1,620; RSI 54; neutral-to-positive trend.',
-      '4. Shareholding Pattern': 'Demo promoter stake 25.2%; FII +0.4 pp QoQ; pledge 0%.',
       '5. Balance Sheet Strength': 'Bank-specific demo: capital adequacy 19.3%; gross NPA 1.4%; deposits remain the key funding base.',
       '6. Management & Governance': 'Demo review: clean audit opinion; monitor integration, asset quality, and governance disclosures.',
       '7. Corporate Events & News': 'Demo snapshot: quarterly results due 20 Jan 2027; no active regulatory event assumed.',
@@ -212,36 +207,22 @@ const stockSampleProfiles: Record<string, StockSampleProfile> = {
     },
     pointOverrides: {
       '2. Fundamental / Financial Health': {
-        'ROE (Return on Equity)': { value: '17.1%', status: 'positive' },
-        'ROA (Return on Assets)': { value: '1.9%', detail: 'Illustrative bank profitability measure.' },
-        'PE Ratio': { value: '21.8×', status: 'neutral' },
-        'PB Ratio (Price-to-Book)': { value: '2.8×', status: 'neutral' },
       },
       '3. Technical Analysis': {
         'Price vs 200-Day Moving Average': { value: '3.7% above · ₹1,620', status: 'positive' },
         'RSI (Relative Strength Index)': { value: '54 · Neutral', status: 'neutral' },
       },
-      '4. Shareholding Pattern': {
-        'Promoter Holding': { value: '25.2% · unchanged QoQ', status: 'neutral' },
-        'FII Holding': { value: '47.3% · +0.4 pp QoQ', status: 'positive' },
-        'Promoter Pledge': { value: '0.0%', status: 'positive' },
-      },
     },
   },
   INFY: {
     businessPoints: {
-      Company: { value: 'Infosys Ltd' },
-      'What does the company do?': { value: 'IT services, consulting, cloud, and digital transformation.', detail: 'Illustrative global technology-services profile.' },
-      'How does it make money?': { value: 'Long-term projects, managed services, and consulting.', detail: 'Example revenue from enterprise technology contracts.' },
       'Who are its customers?': { value: 'Global enterprises · B2B', detail: 'Example customers across financial services, retail, and manufacturing.' },
-      'Competitors and market position': { value: 'Global IT services leader.', detail: 'Example peers: TCS, Wipro, Accenture, and Cognizant.' },
       'Moat / competitive advantage': { value: 'Brand · talent · delivery network', detail: 'Illustrative client relationships and global delivery scale.' },
       'Industry direction': { value: 'Cloud and AI services: growing', detail: 'Technology budgets and client spending cycles can vary.' },
     },
     summaries: {
-      '2. Fundamental / Financial Health': 'Demo IT snapshot: operating margin 21.0%, ROE 31.0%, net cash.',
+      '2. Fundamental / Financial Health': 'Demo IT snapshot: net cash.',
       '3. Technical Analysis': 'Demo quote ₹1,662; 200 DMA ₹1,590; RSI 57; positive trend.',
-      '4. Shareholding Pattern': 'Demo promoter stake 14.3%; FII 33.2%; pledge 0%.',
       '5. Balance Sheet Strength': 'Demo snapshot: net cash ₹28,000 Cr; receivable days 66; monitor collections.',
       '6. Management & Governance': 'Demo review: unmodified audit opinion; monitor attrition, guidance, and related-party disclosures.',
       '7. Corporate Events & News': 'Demo snapshot: results due 15 Jan 2027; deal wins and client spending are key updates.',
@@ -253,36 +234,23 @@ const stockSampleProfiles: Record<string, StockSampleProfile> = {
     },
     pointOverrides: {
       '2. Fundamental / Financial Health': {
-        'Operating Profit Margin (OPM / EBITDA)': { value: '21.0%', status: 'positive' },
-        'ROE (Return on Equity)': { value: '31.0%', status: 'positive' },
-        'PE Ratio': { value: '27.4×', status: 'caution' },
         'Debt-to-Equity (D/E)': { value: '0.08× · net cash', status: 'positive' },
       },
       '3. Technical Analysis': {
         'Price vs 200-Day Moving Average': { value: '4.5% above · ₹1,590', status: 'positive' },
         'RSI (Relative Strength Index)': { value: '57 · Neutral', status: 'neutral' },
       },
-      '4. Shareholding Pattern': {
-        'Promoter Holding': { value: '14.3% · unchanged QoQ', status: 'neutral' },
-        'FII Holding': { value: '33.2% · +0.3 pp QoQ', status: 'positive' },
-        'Promoter Pledge': { value: '0.0%', status: 'positive' },
-      },
     },
   },
   TCS: {
     businessPoints: {
-      Company: { value: 'Tata Consultancy Services' },
-      'What does the company do?': { value: 'IT consulting, software services, and business solutions.', detail: 'Illustrative global technology-services profile.' },
-      'How does it make money?': { value: 'Enterprise projects, managed services, and outsourcing.', detail: 'Example revenue from long-term client contracts.' },
       'Who are its customers?': { value: 'Global enterprises · B2B', detail: 'Example customers across banking, retail, and manufacturing.' },
-      'Competitors and market position': { value: 'Global scale leader in IT services.', detail: 'Example peers: Infosys, Accenture, Wipro, and Cognizant.' },
       'Moat / competitive advantage': { value: 'Brand · scale · client relationships', detail: 'Illustrative delivery footprint and long-term contracts.' },
       'Industry direction': { value: 'Digital transformation: growing', detail: 'Client technology budgets remain a key cycle indicator.' },
     },
     summaries: {
-      '2. Fundamental / Financial Health': 'Demo IT snapshot: operating margin 24.5%, ROE 52.0%, net cash.',
+      '2. Fundamental / Financial Health': 'Demo IT snapshot: net cash.',
       '3. Technical Analysis': 'Demo quote ₹4,356; 200 DMA ₹4,190; RSI 61; positive momentum.',
-      '4. Shareholding Pattern': 'Demo promoter stake 71.7%; FII 12.8%; pledge 0%.',
       '5. Balance Sheet Strength': 'Demo snapshot: net cash ₹45,000 Cr; receivable days 72; low debt.',
       '6. Management & Governance': 'Demo review: unmodified audit opinion; monitor succession, margins, and disclosures.',
       '7. Corporate Events & News': 'Demo snapshot: results due 9 Jan 2027; large deal wins are a key update.',
@@ -294,36 +262,23 @@ const stockSampleProfiles: Record<string, StockSampleProfile> = {
     },
     pointOverrides: {
       '2. Fundamental / Financial Health': {
-        'Operating Profit Margin (OPM / EBITDA)': { value: '24.5%', status: 'positive' },
-        'ROE (Return on Equity)': { value: '52.0%', status: 'positive' },
-        'PE Ratio': { value: '31.2×', status: 'caution' },
         'Debt-to-Equity (D/E)': { value: '0.05× · net cash', status: 'positive' },
       },
       '3. Technical Analysis': {
         'Price vs 200-Day Moving Average': { value: '4.0% above · ₹4,190', status: 'positive' },
         'RSI (Relative Strength Index)': { value: '61 · Neutral', status: 'neutral' },
       },
-      '4. Shareholding Pattern': {
-        'Promoter Holding': { value: '71.7% · unchanged QoQ', status: 'positive' },
-        'FII Holding': { value: '12.8% · +0.2 pp QoQ', status: 'positive' },
-        'Promoter Pledge': { value: '0.0%', status: 'positive' },
-      },
     },
   },
   ICICIBANK: {
     businessPoints: {
-      Company: { value: 'ICICI Bank' },
-      'What does the company do?': { value: 'Banking, lending, payments, and financial products.', detail: 'Illustrative private-sector bank profile.' },
-      'How does it make money?': { value: 'Interest income, fees, cards, and wealth services.', detail: 'Example revenue from retail and corporate banking.' },
       'Who are its customers?': { value: 'Individuals · SMEs · Corporates', detail: 'Example retail, business, and institutional clients.' },
-      'Competitors and market position': { value: 'Large private-bank leader.', detail: 'Example peers: HDFC Bank, SBI, and Axis Bank.' },
       'Moat / competitive advantage': { value: 'Brand · digital channels · distribution', detail: 'Illustrative customer reach and product breadth.' },
       'Industry direction': { value: 'Formal credit and digital banking: growing', detail: 'Deposit costs and credit quality remain important.' },
     },
     summaries: {
-      '2. Fundamental / Financial Health': 'Demo bank snapshot: ROE 17.8%, NIM 4.4%.',
+      '2. Fundamental / Financial Health': 'Demo bank snapshot: NIM 4.4%.',
       '3. Technical Analysis': 'Demo quote ₹1,287; 200 DMA ₹1,220; RSI 59; positive trend.',
-      '4. Shareholding Pattern': 'Demo promoter stake 50.9%; FII 44.1%; pledge 0%.',
       '5. Balance Sheet Strength': 'Bank-specific demo: capital adequacy 16.8%; gross NPA 1.9%; monitor loan mix.',
       '6. Management & Governance': 'Demo review: clean audit opinion; track credit quality and governance disclosures.',
       '7. Corporate Events & News': 'Demo snapshot: results due 24 Jan 2027; asset quality is a key update.',
@@ -335,36 +290,22 @@ const stockSampleProfiles: Record<string, StockSampleProfile> = {
     },
     pointOverrides: {
       '2. Fundamental / Financial Health': {
-        'ROE (Return on Equity)': { value: '17.8%', status: 'positive' },
-        'ROA (Return on Assets)': { value: '2.2%', detail: 'Illustrative bank profitability measure.' },
-        'PE Ratio': { value: '18.6×', status: 'neutral' },
-        'PB Ratio (Price-to-Book)': { value: '3.2×', status: 'neutral' },
       },
       '3. Technical Analysis': {
         'Price vs 200-Day Moving Average': { value: '5.5% above · ₹1,220', status: 'positive' },
         'RSI (Relative Strength Index)': { value: '59 · Neutral', status: 'neutral' },
       },
-      '4. Shareholding Pattern': {
-        'Promoter Holding': { value: '50.9% · unchanged QoQ', status: 'positive' },
-        'FII Holding': { value: '44.1% · +0.2 pp QoQ', status: 'positive' },
-        'Promoter Pledge': { value: '0.0%', status: 'positive' },
-      },
     },
   },
   BHARTIARTL: {
     businessPoints: {
-      Company: { value: 'Bharti Airtel' },
-      'What does the company do?': { value: 'Mobile, broadband, enterprise, and digital services.', detail: 'Illustrative telecommunications profile.' },
-      'How does it make money?': { value: 'Mobile plans, broadband, enterprise connectivity, and infrastructure.', detail: 'Example recurring subscription and service revenue.' },
       'Who are its customers?': { value: 'Consumers · Businesses · Government', detail: 'Example mobile, broadband, and enterprise customers.' },
-      'Competitors and market position': { value: 'Leading national telecom operator.', detail: 'Example peers: Reliance Jio and Vodafone Idea.' },
       'Moat / competitive advantage': { value: 'Brand · spectrum · network · scale', detail: 'Illustrative network investment and subscriber base.' },
       'Industry direction': { value: 'Data usage and 5G: growing', detail: 'Competition, spectrum costs, and pricing are key factors.' },
     },
     summaries: {
-      '2. Fundamental / Financial Health': 'Demo telecom snapshot: EBITDA margin 52.0%, net debt/EBITDA 1.8×.',
+      '2. Fundamental / Financial Health': 'Demo telecom snapshot: net debt/EBITDA 1.8×.',
       '3. Technical Analysis': 'Demo quote ₹1,712; 200 DMA ₹1,630; RSI 63; positive trend.',
-      '4. Shareholding Pattern': 'Demo promoter stake 55.1%; FII 18.2%; pledge 0%.',
       '5. Balance Sheet Strength': 'Demo snapshot: net debt ₹1.9 lakh Cr; spectrum liabilities are a key balance-sheet item.',
       '6. Management & Governance': 'Demo review: clean audit opinion; monitor leverage, spectrum commitments, and disclosures.',
       '7. Corporate Events & News': 'Demo snapshot: results due 7 Feb 2027; tariff and 5G updates are key events.',
@@ -376,18 +317,12 @@ const stockSampleProfiles: Record<string, StockSampleProfile> = {
     },
     pointOverrides: {
       '2. Fundamental / Financial Health': {
-        'Operating Profit Margin (OPM / EBITDA)': { value: '52.0%', status: 'positive' },
         'Debt-to-Equity (D/E)': { value: '1.4×', status: 'caution' },
         'Interest Coverage': { value: '3.6×', status: 'positive' },
       },
       '3. Technical Analysis': {
         'Price vs 200-Day Moving Average': { value: '5.0% above · ₹1,630', status: 'positive' },
         'RSI (Relative Strength Index)': { value: '63 · Neutral', status: 'neutral' },
-      },
-      '4. Shareholding Pattern': {
-        'Promoter Holding': { value: '55.1% · unchanged QoQ', status: 'positive' },
-        'FII Holding': { value: '18.2% · +0.3 pp QoQ', status: 'positive' },
-        'Promoter Pledge': { value: '0.0%', status: 'positive' },
       },
     },
   },

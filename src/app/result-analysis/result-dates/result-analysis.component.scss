@@ -27,6 +27,10 @@
   grid-column: 1 / -1;
 }
 
+.analysis-grid app-quote-snapshot {
+  grid-column: 1 / -1;
+}
+
 .results-list {
   display: flex;
   min-width: 0;
